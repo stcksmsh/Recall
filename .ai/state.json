@@ -1,0 +1,216 @@
+{
+  "schema_version": 1,
+  "project": {
+    "name": "Recall",
+    "description": "A self-maintaining, vendor-neutral memory system. Three tiers: immutable episodic capture; a semantic consolidated tier (plaintext Markdown as source of truth plus a rebuildable SQLite index); and an offline consolidation loop that reconciles them via a confidence-gated split between a probabilistic LLM classifier (proposes) and a deterministic executor (writes). Product claim: never wrong silently, never loses ground truth, honest about its own measured error rate.",
+    "invariants": [
+      "brain/ is the source of truth; brain/.brainindex/ (SQLite) is a gitignored, fully rebuildable index that must never hold anything not recoverable from the Markdown.",
+      "The episodic tier (brain/episodic/) is immutable and append-only; corrections are new captures that reference the old one, never mutations.",
+      "Expensive reasoning (LLM classification, consolidation) runs only at write-time / offline, never in the read/query path or a live session-start path.",
+      "The probabilistic classifier only proposes; the deterministic executor is the only thing that writes to the semantic tier. The LLM never both judges and acts.",
+      "Contradictions are never auto-applied and verification never auto-corrects; both only route to the review queue.",
+      "Conflict-classification accuracy has a measured ceiling (~65.3%, CONFLICTS benchmark, frontier models). Any classifier change must report its own measured accuracy on the real eval set, never an assumed one.",
+      "Recall reads AIW's tracked files read-only and never writes to .ai/; Recall's write path targets only brain/.",
+      "The data format is vendor-neutral plaintext + git and the classifier must stay provider-swappable (Anthropic is the current default, not a lock-in)."
+    ]
+  },
+  "plans": {
+    "recall-v1": {
+      "title": "Recall v1 — vendor-neutral plaintext memory with confidence-gated consolidation",
+      "objective": "Carry BUILD_PLAN.md to a trustworthy, dogfoodable v1. Done: episodic+index round-trip, classifier eval (60.5% measured on 76 real cases), consolidation loop, retrieval+injection+provenance, correction loop, Phase 6 deterministic verification (partial). Remaining: CLI polish (recall status), close the provider-portability gap in the write path, add read-only AIW integration, and dogfood Recall's consolidation on this repo's own decision history."
+    }
+  },
+  "tasks": {
+    "aiw-readonly-integration": {
+      "title": "Read-only AIW consolidated-tier reader for a session-start hook",
+      "plan": "recall-v1",
+      "status": "pending",
+      "dependencies": [
+        "recall-status-cmd"
+      ],
+      "scope": [
+        "src/inject/",
+        "src/cli.py",
+        "tests/"
+      ],
+      "acceptance": [
+        "A command (e.g. 'recall inject --for-session') reads only brain/semantic/ + the SQLite index and emits the injection-formatted context",
+        "That path makes zero network calls, zero model calls, and no writes anywhere; a test asserts this",
+        "Measured wall time < 150ms on a brain/ with ~100 facts; recorded in the test or an eval note",
+        "Documented boundary in .ai/decisions/0006 or a code comment: Recall never writes .ai/"
+      ],
+      "constraints": [
+        "Invariant 3 + 7: cheap local read only, never writes .ai/, never in an expensive path",
+        "Does not add a Recall hook to .claude/ or .codex/ in this task — just the readable command"
+      ],
+      "verify": [
+        {
+          "argv": [
+            ".venv/bin/pytest",
+            "-q"
+          ],
+          "timeout_seconds": 300
+        }
+      ],
+      "worker": null,
+      "blocker": null,
+      "result": null,
+      "evidence": null
+    },
+    "dogfood-consolidation": {
+      "title": "Dogfood: run consolidation on Recall's own build history",
+      "plan": "recall-v1",
+      "status": "pending",
+      "dependencies": [
+        "provider-portability",
+        "aiw-readonly-integration"
+      ],
+      "scope": [
+        "brain/",
+        "eval/DOGFOOD_FINDINGS.md"
+      ],
+      "acceptance": [
+        "Episodic captures exist under brain/episodic/ for the material decisions of this build (dual-representation split, executor distrust of low-confidence, 65.3% ceiling as constraint, AIW boundary)",
+        "'recall consolidate run' processes them and the review queue / semantic tier reflect the outcome",
+        "A written finding (eval/DOGFOOD_FINDINGS.md) answers: does retrieval surface 'why dual-representation' and 'why the executor distrusts low-confidence classifications' correctly?",
+        "If it does not surface them well, the finding says so plainly and is filed as a real signal, not smoothed over"
+      ],
+      "constraints": [
+        "Uses the real classifier (measured), not a mock; cost is small but real",
+        "Captures are append-only; do not rewrite history to make consolidation look good"
+      ],
+      "verify": [
+        {
+          "argv": [
+            ".venv/bin/pytest",
+            "-q"
+          ],
+          "timeout_seconds": 600
+        }
+      ],
+      "worker": null,
+      "blocker": null,
+      "result": null,
+      "evidence": null
+    },
+    "provider-portability": {
+      "title": "Make the write-path classifier provider-swappable",
+      "plan": "recall-v1",
+      "status": "pending",
+      "dependencies": [
+        "readme-accuracy"
+      ],
+      "scope": [
+        "src/consolidate/classifier.py",
+        "eval/run_eval.py",
+        "eval/",
+        "tests/"
+      ],
+      "acceptance": [
+        "classifier.classify() selects provider/model via a documented interface or config; Anthropic stays the default",
+        "At least one alternative provider path exists (or a clean adapter seam with a second impl) and is exercised by a test with a fake client",
+        "The RuntimeError message no longer says 'no local classifier is supported' as an absolute; it names the configured provider",
+        "eval/PHASE*_*.md or a new eval note reports MEASURED accuracy for any provider claimed to work (invariant 6); no assumed numbers"
+      ],
+      "constraints": [
+        "Do not change DEFAULT_CONFIDENCE_THRESHOLD or the prompt as part of this task",
+        "Invariant 6: any 'works with provider X' claim needs a measured number on eval/classifier_set/real_examples.yaml"
+      ],
+      "verify": [
+        {
+          "argv": [
+            ".venv/bin/pytest",
+            "-q"
+          ],
+          "timeout_seconds": 300
+        }
+      ],
+      "worker": null,
+      "blocker": null,
+      "result": null,
+      "evidence": null
+    },
+    "readme-accuracy": {
+      "title": "README reflects the actually-implemented system state",
+      "plan": "recall-v1",
+      "status": "pending",
+      "dependencies": [],
+      "scope": [
+        "README.md"
+      ],
+      "acceptance": [
+        "README Status section lists Phases 0-7 + Phase 2 follow-up + Phase 6 as done, not 'Phase 0/1'",
+        "No sentence in README claims consolidation, retrieval, injection, or verification is unimplemented",
+        "README Usage documents every command shown by 'recall --help' (capture, index build, consolidate run, review list/accept/override, retrieve, status)",
+        "Full test suite still green after the edit"
+      ],
+      "constraints": [
+        "Docs-only task: no changes under src/ or tests/",
+        "Do not overstate — Phase 6 is 'partial (deterministic verifier shipped, NLI evaluated and rejected)', not 'done'"
+      ],
+      "verify": [
+        {
+          "argv": [
+            ".venv/bin/pytest",
+            "-q"
+          ],
+          "timeout_seconds": 300
+        },
+        {
+          "argv": [
+            "bash",
+            "-lc",
+            "! grep -nE \"not implemented yet|Phase 0/1|are not implemented\" README.md"
+          ],
+          "timeout_seconds": 300
+        }
+      ],
+      "worker": null,
+      "blocker": null,
+      "result": null,
+      "evidence": null
+    },
+    "recall-status-cmd": {
+      "title": "Implement 'recall status' (BUILD_PLAN Phase 8)",
+      "plan": "recall-v1",
+      "status": "pending",
+      "dependencies": [],
+      "scope": [
+        "src/cli.py",
+        "src/consolidate/",
+        "src/index/",
+        "tests/"
+      ],
+      "acceptance": [
+        "'recall status' exits 0 and prints: pending review-queue count, most-recent consolidation summary (or 'never run'), and whether the SQLite index is stale vs brain/",
+        "No network and no model call in the status path",
+        "New test in tests/ covers the command against a temp brain/ with 0 and >0 pending items",
+        "src/cli.py no longer contains the 'not yet implemented' stub for status"
+      ],
+      "constraints": [
+        "Read-only: must not trigger consolidation or index rebuild as a side effect (may read the existing index; report staleness rather than fixing it)",
+        "Honor invariant: no expensive reasoning in a read path"
+      ],
+      "verify": [
+        {
+          "argv": [
+            ".venv/bin/pytest",
+            "-q"
+          ],
+          "timeout_seconds": 300
+        }
+      ],
+      "worker": null,
+      "blocker": null,
+      "result": null,
+      "evidence": null
+    }
+  },
+  "active_plan": "recall-v1",
+  "active_task": null,
+  "checkpoint": {
+    "task": "readme-accuracy",
+    "next_action": "Await project owner's confirmation of the AIW translation (plan recall-v1, 5 tasks, decisions 0001-0006, 8 invariants) and their response to the 2 flagged gaps. On confirmation: claim readme-accuracy, update README Status/Usage to match implemented state, run both verify commands, transition to done.",
+    "note": "AIW adoption populated this session. Plan recall-v1 active. 5 pending tasks; readme-accuracy and recall-status-cmd are dependency-ready. Baseline: .venv/bin/pytest -q = 53 passed (run-dcci8V). Decisions 0001-0006 written; 0003/0005/0006 note codebase status. Gaps flagged: (1) classifier hardcoded to Anthropic vs the vendor-neutral constraint; (2) no AIW integration yet. 3 episodic captures written under brain/episodic/2026/09/ dogfooding this decision; NOT yet consolidated (consolidation is task dogfood-consolidation, and needs an ANTHROPIC_API_KEY run). Nothing committed to git yet."
+  }
+}
