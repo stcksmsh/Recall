@@ -10,11 +10,11 @@ Providers:
   single-threaded over examples (the model itself uses all cores); reports per-call latency.
 
 Datasets:
-- eval/classifier_set/real_examples.yaml   -- 46 real examples, 22 marked "[HARD CASE]"
+- eval/classifier_set/real_examples.yaml   -- 76 real examples (ex_001-ex_076), 38 marked "[HARD CASE]"
 - eval/classifier_set/example_*.yaml       -- 20 synthetic (only with --set both/synthetic)
 
 Usage:
-    python eval/run_eval.py                                   # sonnet-5, real 46
+    python eval/run_eval.py                                   # sonnet-5, real 76
     python eval/run_eval.py --model claude-haiku-4-5-20251001 --label haiku
     python eval/run_eval.py --provider local --model-path models/qwen2.5-7b-q4.gguf --label qwen
     python eval/run_eval.py --baseline eval/results_sonnet.json   # diff vs a prior run
@@ -44,7 +44,9 @@ CLASSIFIER_SET_DIR = Path(__file__).parent / "classifier_set"
 REAL_FILE = CLASSIFIER_SET_DIR / "real_examples.yaml"
 CLASSES = ["new", "update", "contradiction", "context_dependent_both"]
 GATED_AUTOAPPLY = {"update", "context_dependent_both"}
-COSTLY_IDS = ["ex_003", "ex_023", "ex_040", "ex_044"]  # the Phase 2 silent-corruption misses
+# Phase 2 silent-corruption misses (batch 1) + batch-2 "wrong-when-made" contradiction cases.
+COSTLY_IDS = ["ex_003", "ex_023", "ex_040", "ex_044",
+              "ex_047", "ex_051", "ex_052", "ex_069"]
 
 
 def _field_names(cls) -> set[str]:

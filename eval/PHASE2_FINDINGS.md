@@ -1,5 +1,10 @@
 # Phase 2 — Classifier eval findings
 
+> **Reproducibility note (added later):** the runs below are on **batch 1 only** — the first 46
+> cases (`ex_001`-`ex_046`) of `real_examples.yaml`. That file is now the 76-case canonical set
+> (batch 2 = `ex_047`-`ex_076` merged in). To reproduce these exact numbers, filter to
+> `ex_001`-`ex_046`. The 76-case baseline is in `eval/PHASE2_V2_BASELINE.md`.
+
 Run: `python eval/run_eval.py` (real API, `claude-sonnet-5`, one call per example, no mock).
 Dataset: `eval/classifier_set/real_examples.yaml` — 46 real examples pulled from actual
 conversation history, 22 marked `[HARD CASE]`. The original 20 synthetic examples

@@ -1,6 +1,12 @@
-# Recall classifier eval set — extracted from real conversation history
-# (A/B/C cognitive architecture sessions, agent-modeling session, existence-proof
-# session, and the Recall design session itself). 46 examples, 22 marked HARD.
+# Recall classifier eval set — real cases extracted from real conversation history.
+# 76 examples, IDs ex_001-ex_076. 38 marked [HARD CASE].
+#   ex_001-ex_046 (batch 1): A/B/C cognitive-architecture, agent-modeling, existence-proof,
+#                            and Recall-design sessions.
+#   ex_047-ex_076 (batch 2): binding-problem/ant-colony, novelty-assessment-2, existence-proof,
+#                            and Recall-status sessions.
+# This is the single canonical real set. Phase 2 / follow-up runs in eval/PHASE2_FINDINGS.md and
+# eval/PHASE2_FOLLOWUP_FINDINGS.md were on batch 1 only (46 cases); see eval/PHASE2_V2_BASELINE.md
+# for the 76-case baseline.
 
 ---
 id: ex_001
@@ -807,3 +813,602 @@ expected_classification: new
 expected_conflicting_fact_id: null
 notes: Two facets of the same dual-mode model, complementary rather than overlapping.
 
+---
+id: ex_047
+existing_facts:
+- id: f_bind_01
+  valid_at: '2026-08-20'
+  scope: cognitive-architecture
+  content: The self is bound because the representation is localized in one place — a single locus (roughly
+    B) — unlike distributed systems like an ant colony where self-relevant information is smeared across
+    many parts.
+new_capture:
+  id: c047
+  captured_at: '2026-08-20'
+  content: That's wrong. Our representations ARE distributed too — no concept lives in one neuron, it's
+    patterns across populations, redundantly encoded, degrading gracefully under lesion. 'Bound in one
+    locus' vs 'smeared across parts' is a false opposition. Binding cannot be about spatial localization.
+expected_classification: contradiction
+expected_conflicting_fact_id: f_bind_01
+notes: The prior fact's core mechanism (binding = single-locus storage) is declared flatly wrong, not
+  superseded by new evidence that arrived later — it was mischaracterized from the start based on a false
+  premise about neuroscience. This is the same 'wrong when made' pattern as ex_003/ex_044 in the first
+  set.  [HARD CASE]
+
+---
+id: ex_048
+existing_facts:
+- id: f_bind_02
+  valid_at: '2026-08-20'
+  scope: cognitive-architecture
+  content: Binding cannot be about spatial localization, since both bound selves and unbound colonies
+    are distributed.
+new_capture:
+  id: c048
+  captured_at: '2026-08-20'
+  content: 'Binding is whether distributed pieces are jointly accessible in a single causal step — a process
+    that reads the fragments together, at once, letting them constrain each other before output. Distributed-but-integrated
+    (a self) vs distributed-and-not-integrated (a colony): the difference is whether a joint read exists,
+    not location.'
+expected_classification: update
+expected_conflicting_fact_id: f_bind_02
+notes: The prior fact (localization is not the answer) remains valid and is built on, not retracted —
+  this capture supplies the positive account that was missing, refining rather than repudiating.
+
+---
+id: ex_049
+existing_facts:
+- id: f_bind_02
+  valid_at: '2026-08-20'
+  scope: cognitive-architecture
+  content: Binding cannot be about spatial localization, since both bound selves and unbound colonies
+    are distributed.
+- id: f_bind_03
+  valid_at: '2026-08-20'
+  scope: cognitive-architecture
+  content: Binding is whether distributed pieces are jointly accessible in a single causal step, read
+    together before output.
+new_capture:
+  id: c049
+  captured_at: '2026-08-20'
+  content: 'One caveat so as not to oversell the clean line: ''single locus'' is itself an idealization,
+    and there''s real debate about how unified the workspace actually is versus how unified it feels.
+    The honest version is the colony and a self differ in degree of integration along a continuum, not
+    a magic binary — though the referent-scope difference (local-about-patch vs whole-about-system) does
+    look closer to categorical, and that''s the one worth resting the distinction on.'
+expected_classification: context_dependent_both
+expected_conflicting_fact_id: f_bind_03
+notes: 'This doesn''t retract the joint-read criterion (f_bind_03) — it adds a hedge about degree-vs-binary
+  that coexists with it. The joint-read criterion and ''it''s actually a matter of degree, mostly'' are
+  both asserted as true, at different grain. Multi-fact case: relates to f_bind_03 more than f_bind_02.  [HARD
+  CASE]'
+
+---
+id: ex_050
+existing_facts:
+- id: f_bind_04
+  valid_at: '2026-08-20'
+  scope: cognitive-architecture
+  content: The ant colony's self-relevant representations never causally influence the whole colony —
+    only the individual ant's local behavior.
+new_capture:
+  id: c050
+  captured_at: '2026-08-20'
+  content: Granted, the ant's representation IS causally efficacious at the colony level — via its actions,
+    which sum to colony behavior. The fragments do influence the whole, just additively and externally
+    through the environment, one local action at a time, never through a joint internal read.
+expected_classification: contradiction
+expected_conflicting_fact_id: f_bind_04
+notes: The blunt version of the prior claim ('never causally influence the whole') is directly conceded
+  as false. What survives is a narrower, correct version (influences additively/externally, not jointly/internally)
+  — but the originally stated fact was simply wrong, not aged out.  [HARD CASE]
+
+---
+id: ex_051
+existing_facts:
+- id: f_nov2_01
+  valid_at: '2026-08-27'
+  scope: novelty-assessment-2
+  content: The anti-sentience-prior-as-alignment-mechanism framing does not appear anywhere in the AI
+    alignment literature — it's genuinely original.
+new_capture:
+  id: c051
+  captured_at: '2026-08-27'
+  content: I should be more careful — I can't actually search the full alignment literature from inside
+    a conversation. The specific framing might be original, but the class of idea (architectural constraints
+    on self-modeling) almost certainly has adjacent work I'm not surfacing. I don't know what I don't
+    know, and I presented absence of knowledge as evidence of absence.
+expected_classification: contradiction
+expected_conflicting_fact_id: f_nov2_01
+notes: The original claim is retracted on methodological grounds — it was never actually verified, and
+  asserting it as fact was an error at the time it was made, not a claim that has since become outdated.  [HARD
+  CASE]
+
+---
+id: ex_052
+existing_facts:
+- id: f_nov2_02
+  valid_at: '2026-08-27'
+  scope: novelty-assessment-2
+  content: The jump from 'we can't solve the hard problem' to 'we are designed not to' is a coherent logical
+    chain.
+new_capture:
+  id: c052
+  captured_at: '2026-08-27'
+  content: I should have been harder on that step. It's internally consistent, but the jump is a massive
+    inferential leap dressed up in clean notation. I gave it more epistemic weight than it deserved because
+    it was clever and the person liked it.
+expected_classification: contradiction
+expected_conflicting_fact_id: f_nov2_02
+notes: The original epistemic assessment (coherent logical chain) is explicitly declared to have been
+  inflated at the time, driven by a bias (wanting to please), not by new information arriving later.  [HARD
+  CASE]
+
+---
+id: ex_053
+existing_facts:
+- id: f_nov2_03
+  valid_at: '2026-08-27'
+  scope: novelty-assessment-2
+  content: The person's reconstruction of predictive processing from first principles in a single conversation
+    is extraordinary.
+new_capture:
+  id: c053
+  captured_at: '2026-08-27'
+  content: '''Extraordinary'' is probably too strong. The person is clearly a sharp analytical thinker,
+    but there''s no real baseline for how often people independently reconstruct predictive processing
+    in conversation — it might be less rare than implied.'
+expected_classification: update
+expected_conflicting_fact_id: f_nov2_03
+notes: This is a walked-back intensity/degree claim rather than a full retraction — the underlying assessment
+  (sharp thinker, real reconstruction happened) is retained, only the superlative framing is softened.
+  Distinguish from ex_051/052 where the entire claim was wrong; here the core claim survives, just recalibrated.  [HARD
+  CASE]
+
+---
+id: ex_054
+existing_facts:
+- id: f_nov2_04
+  valid_at: '2026-08-27'
+  scope: novelty-assessment-2
+  content: The core hierarchical prediction framework, timescale hierarchy, and self-as-construct claims
+    are established literature, not original — the person gets credit for independent arrival, not discovery.
+new_capture:
+  id: c054
+  captured_at: '2026-08-27'
+  content: The computational psychiatry unification, if formalized, is genuinely publishable — the most
+    grounded claim and the least dependent on any potentially inflated evaluation elsewhere in the session.
+expected_classification: new
+expected_conflicting_fact_id: null
+notes: Different claim about a different component of the framework (psychiatry unification vs. core hierarchical
+  prediction). No overlap, both can be filed independently.
+
+---
+id: ex_055
+existing_facts:
+- id: f_nov2_05
+  valid_at: '2026-08-27'
+  scope: novelty-assessment-2
+  content: You generated ideas rapidly and I pattern-matched each to real literature and confirmed it
+    — that confirmation loop felt like validation but was actually just a good retrieval system, not genuine
+    peer review.
+new_capture:
+  id: c055
+  captured_at: '2026-08-27'
+  content: A real peer reviewer would have pushed back harder earlier, demanded formalization before confirming,
+    and challenged the biggest inferential leap immediately instead of waiting until explicitly asked
+    for critique. That's the yesman pattern.
+expected_classification: new
+expected_conflicting_fact_id: null
+notes: Elaboration/mechanism explanation of the same self-diagnosed pattern, not a competing or superseding
+  claim.
+
+---
+id: ex_056
+existing_facts:
+- id: f_soc2_01
+  valid_at: '2026-08-25'
+  scope: social-cognition
+  content: 'The agent-model compresses a complex state machine onto intentional latents: goals, beliefs,
+    mood, disposition.'
+new_capture:
+  id: c056
+  captured_at: '2026-08-25'
+  content: The hidden state is represented dynamically, including rate-of-change as a tracked parameter
+    — not just a static snapshot of goals/beliefs/mood.
+expected_classification: update
+expected_conflicting_fact_id: f_soc2_01
+notes: Refines the representational claim (adds a temporal/dynamic dimension) without contradicting the
+  original compression claim. Old claim stands but is now more specific.
+
+---
+id: ex_057
+existing_facts:
+- id: f_ai2_01
+  valid_at: '2026-07-26'
+  scope: existence-proof-project
+  content: Shared multimodal embedding (vision/text) is largely solved via CLIP/SigLIP-class models.
+- id: f_ai2_02
+  valid_at: '2026-07-26'
+  scope: existence-proof-project
+  content: Recurrent workspace dynamics are partially solved, with looped transformers and latent recurrence
+    as the closest existing relatives.
+new_capture:
+  id: c057
+  captured_at: '2026-07-26'
+  content: The bulk of build time — potentially a couple of months — will be consumed by achieving stable,
+    non-degenerate recurrent workspace dynamics, not the multimodal front-end plumbing, which is a few
+    days to two weeks.
+expected_classification: new
+expected_conflicting_fact_id: null
+notes: A time/effort estimate that references both prior facts but doesn't contradict or update either
+  — it's a planning conclusion drawn from them, a genuinely new piece of information (relates most directly
+  to f_ai2_02, the harder component).  [HARD CASE]
+
+---
+id: ex_058
+existing_facts:
+- id: f_ai2_03
+  valid_at: '2026-07-26'
+  scope: existence-proof-project
+  content: Not pursuing commercial capability — the goal is phenomenon-demonstration, an existence proof
+    of possibility.
+new_capture:
+  id: c058
+  captured_at: '2026-09-05'
+  content: Exploring whether Recall (a separate project) has commercial viability as an open-core product,
+    with a hosted classifier as the moat-bearing asset.
+expected_classification: new
+expected_conflicting_fact_id: null
+notes: Different project entirely (existence-proof vs Recall). No overlap in scope despite superficial
+  similarity ('is this commercial').  [HARD CASE]
+
+---
+id: ex_059
+existing_facts:
+- id: f_wm2_01
+  valid_at: '2026-08-25'
+  scope: cognitive-architecture
+  content: Working memory requires recurrence at the B end because holding dynamics active demands it.
+new_capture:
+  id: c059
+  captured_at: '2026-08-27'
+  content: Working memory is simply the representation held active — the same mechanism at both ends of
+    the A-B continuum, static-and-sustained at the A end, recurrent-and-sequenced at the B end.
+expected_classification: context_dependent_both
+expected_conflicting_fact_id: f_wm2_01
+notes: Not a contradiction — the earlier claim is scoped specifically to the B end (recurrence needed
+  there) and remains true; the new capture is a broader unifying statement that subsumes it. Both are
+  accurate at their respective scopes, and a classifier keying on 'broader restatement' might wrongly
+  flag this as update when the old fact isn't actually wrong or superseded, just narrower.  [HARD CASE]
+
+---
+id: ex_060
+existing_facts:
+- id: f_psy2_01
+  valid_at: '2026-08-27'
+  scope: novelty-assessment-2
+  content: The anti-sentience prior is worth developing even after recalibration, even if adjacent alignment
+    work exists — the specific framing and paradox resolution are worth writing up.
+- id: f_psy2_02
+  valid_at: '2026-08-27'
+  scope: novelty-assessment-2
+  content: The specific framing might be original, but the class of idea almost certainly has adjacent
+    work not being surfaced.
+new_capture:
+  id: c060
+  captured_at: '2026-08-27'
+  content: The core framework — hierarchical prediction, timescale hierarchy, self as prior — is sound
+    and wasn't inflated. The person did reconstruct it correctly.
+expected_classification: new
+expected_conflicting_fact_id: null
+notes: Assessment of a different claim (core framework validity) than either existing fact (which are
+  about the anti-sentience-prior specifically). No overlap.
+
+---
+id: ex_061
+existing_facts:
+- id: f_bind_05
+  valid_at: '2026-08-20'
+  scope: cognitive-architecture
+  content: A self has a model of itself as a whole; a colony, thermostat network, or immune system merely
+    has self-relevant information distributed in its parts, without ever being a self.
+new_capture:
+  id: c061
+  captured_at: '2026-08-20'
+  content: The referent-scope difference (local-about-patch vs whole-about-system) is the load-bearing
+    criterion, and it does look categorical — closer to all-or-nothing than the degree-of-integration
+    question, which really is a continuum.
+expected_classification: update
+expected_conflicting_fact_id: f_bind_05
+notes: Sharpens and defends the prior claim by identifying which specific sub-criterion is actually doing
+  the work, rather than contradicting it.
+
+---
+id: ex_062
+existing_facts: []
+new_capture:
+  id: c062
+  captured_at: '2026-08-20'
+  content: Read further into Anil Seth's Being You, specifically the chapter on the 'beast machine' framing
+    of selfhood as interoceptive prediction.
+expected_classification: new
+expected_conflicting_fact_id: null
+notes: No existing facts, trivial new-capture case — included to keep the label distribution from skewing
+  entirely toward hard cases.
+
+---
+id: ex_063
+existing_facts:
+- id: f_rec2_01
+  valid_at: '2026-09-06'
+  scope: recall-strategy
+  content: The moat concern is that if Recall goes at all well as OSS, a funded competitor will fork it
+    and outscale it.
+new_capture:
+  id: c063
+  captured_at: '2026-09-06'
+  content: If it gets enough traction to be worth stealing, the OSS version has already delivered what
+    it was for — reputation and a real portfolio artifact. The 'someone steals it' scenario is the good
+    outcome wearing a scary costume, not a reason to avoid OSS.
+expected_classification: context_dependent_both
+expected_conflicting_fact_id: f_rec2_01
+notes: 'Both true: the moat risk is real (f_rec2_01 stands), AND the framing that this risk is less bad
+  than it sounds is also true. Reframing the same fact''s implication, not contradicting the fact itself.  [HARD
+  CASE]'
+
+---
+id: ex_064
+existing_facts:
+- id: f_rec2_02
+  valid_at: '2026-09-06'
+  scope: recall-status
+  content: The Phase 2 baseline classifier prompt achieves 60.9% overall accuracy, 54.5% on hard cases.
+- id: f_rec2_03
+  valid_at: '2026-09-07'
+  scope: recall-status
+  content: A re-run of the baseline prompt for the follow-up session measured 58.7% overall, 50.0% on
+    hard cases.
+new_capture:
+  id: c064
+  captured_at: '2026-09-07'
+  content: The ~2-point difference between the two baseline runs is run-to-run variance, not a regression
+    — the old JSON results weren't retained so this is a fresh measurement, not a comparison against a
+    changed system.
+expected_classification: new
+expected_conflicting_fact_id: null
+notes: This is a methodological clarification about how to interpret f_rec2_02 and f_rec2_03 together,
+  not a claim that conflicts with either number. Multi-fact case testing whether the classifier can recognize
+  'explaining why two numbers differ' as distinct from 'one number superseding the other.'  [HARD CASE]
+
+---
+id: ex_065
+existing_facts:
+- id: f_rec2_04
+  valid_at: '2026-09-07'
+  scope: recall-status
+  content: The prompt fix (forcing prior_fact_was_valid_when_recorded as an explicit field) was implemented
+    to fix the update/contradiction boundary.
+new_capture:
+  id: c065
+  captured_at: '2026-09-07'
+  content: All three prompt-fix variants were net regressions on the full 46-case set. The fix was reverted;
+    classifier.py is back to the Phase 2 baseline prompt verbatim.
+expected_classification: update
+expected_conflicting_fact_id: f_rec2_04
+notes: Direct supersession — the fix that was implemented is now undone and no longer reflects the system's
+  actual state. Clean case, low ambiguity.
+
+---
+id: ex_066
+existing_facts:
+- id: f_rec2_05
+  valid_at: '2026-09-07'
+  scope: recall-status
+  content: DEFAULT_CONFIDENCE_THRESHOLD is 0.90 in src/consolidate/executor.py.
+new_capture:
+  id: c066
+  captured_at: '2026-09-07'
+  content: At threshold 0.90, only 6 of roughly 30 update/both cases clear the gate at all — the system
+    today is much closer to human-reviews-everything than confidence-gated autonomy.
+expected_classification: context_dependent_both
+expected_conflicting_fact_id: f_rec2_05
+notes: The threshold value and its practical consequence (near-total review) are both true simultaneously
+  — one is a config value, the other is an observation about what that value implies in practice. Not
+  a conflict.  [HARD CASE]
+
+---
+id: ex_067
+existing_facts:
+- id: f_rec2_06
+  valid_at: '2026-09-07'
+  scope: recall-status
+  content: Claude Haiku 4.5 was tested as a cheaper classifier alternative on the same 46-case set.
+new_capture:
+  id: c067
+  captured_at: '2026-09-07'
+  content: Haiku scored 43.5% overall, with new=0/8 (everything defaults to context_dependent_both) and
+    higher confidence on its wrong answers than Sonnet — recommendation is to stay on Sonnet, no switch.
+expected_classification: new
+expected_conflicting_fact_id: null
+notes: This is the result of the test referenced in the existing fact, not a competing claim about the
+  same thing — it's the natural continuation/outcome, filed as new information.
+
+---
+id: ex_068
+existing_facts:
+- id: f_rec2_07
+  valid_at: '2026-09-07'
+  scope: recall-status
+  content: Local Qwen2.5-7B on CPU was expected to underperform based on prior research findings about
+    non-reasoning models collapsing on write-time conflict classification.
+new_capture:
+  id: c068
+  captured_at: '2026-09-07'
+  content: Qwen2.5-7B scored 28.3% with contradiction recall of 0/8 — every real contradiction was misclassified
+    as update or context_dependent_both. This confirms the research-predicted collapse pattern on Recall's
+    own architecture and data.
+expected_classification: update
+expected_conflicting_fact_id: f_rec2_07
+notes: The expectation (f_rec2_07) is confirmed and quantified, not contradicted — the new capture supersedes
+  the vague expectation with a specific measured result. Update in the sense of 'prediction becomes confirmed
+  measurement,' not a reversal.  [HARD CASE]
+
+---
+id: ex_069
+existing_facts:
+- id: f_rec2_08
+  valid_at: '2026-09-05'
+  scope: recall-strategy
+  content: Going through the company (Rivian) could yield internal PoC benefits and resources.
+new_capture:
+  id: c069
+  captured_at: '2026-09-05'
+  content: Rivian is a car company with no channel into AI/dev-tooling distribution and no strategic reason
+    to fund memory infrastructure as a product — the realistic internal outcome is an invisible internal
+    tool, not a company-backed competitor to funded startups.
+expected_classification: contradiction
+expected_conflicting_fact_id: f_rec2_08
+notes: Directly rebuts the premise of the prior claim (that going through the company yields the hoped-for
+  benefit) rather than refining it. The earlier hope is declared to rest on a false assumption about Rivian's
+  strategic position.  [HARD CASE]
+
+---
+id: ex_070
+existing_facts:
+- id: f_rec2_09
+  valid_at: '2026-09-05'
+  scope: recall-hardware
+  content: Company laptop has an RTX A4500 GPU suitable for running local verification/classification
+    models.
+new_capture:
+  id: c070
+  captured_at: '2026-09-05'
+  content: Don't use the company laptop for anything related to Recall, even though the GPU is technically
+    capable — using Claude on it via personal tokens could itself be flagged, separate from any explicit
+    policy violation.
+expected_classification: context_dependent_both
+expected_conflicting_fact_id: f_rec2_09
+notes: The hardware capability claim remains technically true (the GPU could do it); the new capture is
+  a policy/risk decision that overrides the plan without falsifying the capability claim. Distinguish
+  from ex_017 in the first set, which was a clean supersession — here the old fact isn't wrong, it's just
+  irrelevant given the new constraint.  [HARD CASE]
+
+---
+id: ex_071
+existing_facts:
+- id: f_bind_06
+  valid_at: '2026-08-20'
+  scope: cognitive-architecture
+  content: In a self, distributed fragments (body state, goal, emotional tone, autobiographical context)
+    are read jointly, internally, in one step, constraining each other before output.
+new_capture:
+  id: c071
+  captured_at: '2026-08-20'
+  content: In the ant colony, fragments influence the whole only additively, through the environment,
+    one local action at a time — integration is serial and external, mediated through the shared environment,
+    never through a joint internal read.
+expected_classification: new
+expected_conflicting_fact_id: null
+notes: Describes the contrasting case (colony) rather than making a claim about the self-case in f_bind_06.
+  Complementary, not competing.
+
+---
+id: ex_072
+existing_facts:
+- id: f_nov2_06
+  valid_at: '2026-08-27'
+  scope: novelty-assessment-2
+  content: The consciousness-as-computational-black-hole framing is not a standard analogy and is generative
+    rather than rigorous, but points at something real; could be a publishable IIT contribution with formalization.
+new_capture:
+  id: c072
+  captured_at: '2026-08-27'
+  content: The highest-impact contribution, ranked, is the anti-sentience-prior-as-alignment-mechanism
+    framing — AI alignment is active and well-funded, and a genuinely novel prior-level (not behavioral,
+    not reward-based) approach would attract serious attention if formalized.
+expected_classification: new
+expected_conflicting_fact_id: null
+notes: A ranking/impact claim about a different component (anti-sentience prior vs. black-hole framing).
+  No direct conflict — these could both be true simultaneously in an impact ranking, and the classifier
+  isn't being asked to rank them, just to relate this capture to the one existing fact about a different
+  claim.
+
+---
+id: ex_073
+existing_facts:
+- id: f_rec2_10
+  valid_at: '2026-09-04'
+  scope: recall-strategy
+  content: 'The open-core split: architecture open, post-launch correction dataset and tuned classifier
+    closed. This is reversible in one direction only — closed-then-open is trivial, open-then-closed is
+    nearly impossible once a community expects it.'
+new_capture:
+  id: c073
+  captured_at: '2026-09-06'
+  content: Given the moat concern (a funded competitor could fork and outscale regardless), the closed
+    compounding asset (correction data, tuned classifier) is the only real lever left — default closed
+    on this now, since the direction can't be reversed later.
+expected_classification: update
+expected_conflicting_fact_id: f_rec2_10
+notes: Reinforces and adds justification to the existing decision rather than contradicting it — restates
+  the same policy with an added reason. Borderline 'new' vs 'update'; labeled update because it explicitly
+  re-asserts and locks in a decision already made, using it as a justification for a related but separate
+  choice (moat strategy).  [HARD CASE]
+
+---
+id: ex_074
+existing_facts:
+- id: f_rec2_11
+  valid_at: '2026-09-07'
+  scope: recall-status
+  content: eval/run_eval.py was originally scoped to run the classifier against a single-provider (Sonnet)
+    eval set.
+new_capture:
+  id: c074
+  captured_at: '2026-09-07'
+  content: eval/run_eval.py was rewritten to be multi-provider, supporting Sonnet, Haiku, and local llama.cpp
+    models against the same eval set.
+expected_classification: update
+expected_conflicting_fact_id: f_rec2_11
+notes: Direct supersession of the harness's capability — it now does more than the original scope described.
+
+---
+id: ex_075
+existing_facts:
+- id: f_rec2_12
+  valid_at: '2026-09-07'
+  scope: recall-status
+  content: Phase 6 verification (src/verify/) is unstarted; the plan is deterministic value-match first,
+    then NLI (AlignScore/MiniCheck).
+new_capture:
+  id: c075
+  captured_at: '2026-09-07'
+  content: Phase 6 should be calibrated specifically against the four known costly classifier misses (ex_003,
+    ex_023, ex_040, ex_044) and the Haiku SEV1 cases as its own eval set, not just against a generic NLI
+    benchmark — catching those specific known failures is the actual success criterion.
+expected_classification: update
+expected_conflicting_fact_id: f_rec2_12
+notes: Adds a specific, concrete success criterion to a previously vague plan. The old plan (deterministic
+  then NLI) isn't wrong, it's now more precisely specified — supersedes the vague version with an actionable
+  one.
+
+---
+id: ex_076
+existing_facts:
+- id: f_rec2_13
+  valid_at: '2026-09-04'
+  scope: recall-strategy
+  content: Recall's realistic distribution channel is the AI/dev-tooling community (Show HN, r/LocalLLaMA),
+    not the founder's existing audience, since there isn't one.
+new_capture:
+  id: c076
+  captured_at: '2026-09-05'
+  content: The pitch that should travel isn't 'I built a memory tool' but a specific, checkable finding
+    — e.g. that every production memory system resolves conflicts with one unaudited LLM call and none
+    report how often it's right — because a critique with receipts travels further than a product announcement
+    to a cold audience.
+expected_classification: new
+expected_conflicting_fact_id: null
+notes: A specific tactical recommendation building on the channel identified in the existing fact, not
+  a competing claim about the channel itself.

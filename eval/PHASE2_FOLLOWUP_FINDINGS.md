@@ -1,8 +1,11 @@
 # Phase 2 follow-up — prompt fix attempt + cheaper-model comparison
 
-Companion to `PHASE2_FINDINGS.md`. Same harness (`eval/run_eval.py`), same 46-case real set
-(`eval/classifier_set/real_examples.yaml`), same 22 `[HARD CASE]` markers. All runs are one real
-inference call per example — no mock.
+Companion to `PHASE2_FINDINGS.md`. Same harness (`eval/run_eval.py`), same 46-case real set,
+same 22 `[HARD CASE]` markers. All runs are one real inference call per example — no mock.
+
+> **Reproducibility note (added later):** "46-case set" = **batch 1 only** (`ex_001`-`ex_046`).
+> `real_examples.yaml` is now the 76-case canonical set. Filter to `ex_001`-`ex_046` to reproduce
+> these numbers. 76-case baseline: `eval/PHASE2_V2_BASELINE.md`.
 
 Two things were tried here:
 
