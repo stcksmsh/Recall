@@ -65,19 +65,28 @@ def consolidate_run(
     confidence_threshold: float = typer.Option(
         DEFAULT_CONFIDENCE_THRESHOLD, help="Auto-apply above this confidence; below it goes to review."
     ),
+    verify: bool = typer.Option(
+        True, "--verify/--no-verify",
+        help="Phase 6: run the lexical retraction check on auto-apply decisions; flags go to "
+             "review instead of auto-applying. Cheap, no model. (The NLI stage is eval-only — "
+             "see eval/PHASE6_FINDINGS.md.)"
+    ),
 ):
     """Run the batch consolidation loop over any not-yet-consolidated episodic captures.
 
     Makes one classifier API call per capture — costs real money, however small. Nothing here
     is scheduled automatically; this is a manual, explicit trigger.
     """
-    summary = do_consolidate(confidence_threshold=confidence_threshold)
+    summary = do_consolidate(confidence_threshold=confidence_threshold, verify_decisions=verify)
     if summary.processed == 0:
         typer.echo("Nothing to consolidate.")
         return
     typer.echo(f"Processed {summary.processed} capture(s):")
     for action, count in sorted(summary.by_action.items()):
         typer.echo(f"  {action}: {count}")
+    if summary.verifier_flagged:
+        typer.echo(f"  ({summary.verifier_flagged} auto-apply decision(s) rerouted to review "
+                   f"by the retraction check)")
 
 
 @review_app.command("list")

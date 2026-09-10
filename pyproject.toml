@@ -16,6 +16,16 @@ dependencies = [
 dev = [
     "pytest>=8.0",
 ]
+# Eval-only. `verify-nli`: the Phase 6 NLI stage (evaluated, not shipped — see
+# eval/PHASE6_FINDINGS.md). `local-eval`: local GGUF classifier comparison in eval/run_eval.py.
+verify-nli = [
+    "torch>=2.2",
+    "transformers>=4.40",
+]
+local-eval = [
+    "llama-cpp-python>=0.3",
+    "huggingface_hub>=0.24",
+]
 
 [project.scripts]
 recall = "src.cli:app"

@@ -41,6 +41,59 @@ def test_run_is_idempotent_once_captures_are_consolidated(tmp_path, monkeypatch)
     assert second_summary.processed == 0
 
 
+def test_verifier_reroutes_flagged_supersede_to_review(tmp_path, monkeypatch):
+    from src.verify import VerificationResult
+
+    brain_root = tmp_path / "brain"
+    capture("seed fact", brain_root=brain_root)
+
+    calls = {"n": 0}
+
+    def fake_classify(new_capture, existing_facts, **kwargs):
+        calls["n"] += 1
+        if calls["n"] == 1:
+            return ClassificationResult("new", 0.95, "seed", None)
+        return ClassificationResult("update", 0.95, "looks like supersession", "f1")
+
+    monkeypatch.setattr(run_module, "classify", fake_classify)
+    monkeypatch.setattr(
+        run_module, "verify",
+        lambda *a, **k: VerificationResult(True, "deterministic", "retraction cue", {"cues": ["x"]}),
+    )
+
+    capture("actually the seed fact was wrong from the start", brain_root=brain_root)
+    summary = run_module.run(brain_root=brain_root)
+
+    assert summary.verifier_flagged == 1
+    assert summary.by_action.get("review") == 1
+    assert summary.by_action.get("supersede") is None
+
+
+def test_verify_decisions_false_skips_the_check(tmp_path, monkeypatch):
+    brain_root = tmp_path / "brain"
+    capture("seed fact", brain_root=brain_root)
+
+    calls = {"n": 0}
+
+    def fake_classify(new_capture, existing_facts, **kwargs):
+        calls["n"] += 1
+        if calls["n"] == 1:
+            return ClassificationResult("new", 0.95, "seed", None)
+        return ClassificationResult("update", 0.95, "supersession", "f1")
+
+    def boom(*a, **k):  # must not be called
+        raise AssertionError("verify() called when verify_decisions=False")
+
+    monkeypatch.setattr(run_module, "classify", fake_classify)
+    monkeypatch.setattr(run_module, "verify", boom)
+
+    capture("second capture", brain_root=brain_root)
+    summary = run_module.run(brain_root=brain_root, verify_decisions=False)
+
+    assert summary.verifier_flagged == 0
+    assert summary.by_action.get("supersede") == 1
+
+
 def test_run_routes_low_confidence_to_review_queue(tmp_path, monkeypatch):
     brain_root = tmp_path / "brain"
     capture("ambiguous capture", brain_root=brain_root)

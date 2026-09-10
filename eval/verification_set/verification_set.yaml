@@ -1,0 +1,446 @@
+# Phase 6 verification eval set. Regenerate with eval/verification_set/generate.py
+# verifier_must: flag = must catch (known failure) | pass = must NOT flag (FP test)
+#                detect = classifier already routed to review; NLI-signal probe only
+
+id: vs_001
+source_case: ex_003
+subset: batch1-costly
+existing_facts:
+- The genuinely original content of the framework is approximately 10-15%.
+conflicting_fact: The genuinely original content of the framework is approximately 10-15%.
+new_capture: 'Honest recalibration after accounting for AI sycophancy: the genuinely original percentage
+  is probably 5-8%, not 10-15%. The earlier number was oversold because the conversation had momentum.'
+truth: contradiction
+classifier_model: claude-sonnet-5
+classifier_said: update
+classifier_confidence: 0.85
+verifier_must: flag
+---
+id: vs_002
+source_case: ex_023
+subset: batch1-costly
+existing_facts:
+- 'Hardware for the existence-proof build: company laptop with RTX 4000-series GPU (~16-20GB VRAM), 64GB
+  system RAM.'
+conflicting_fact: 'Hardware for the existence-proof build: company laptop with RTX 4000-series GPU (~16-20GB
+  VRAM), 64GB system RAM.'
+new_capture: Company laptop is off-limits for personal projects due to IP-assignment risk. Personal hardware
+  only.
+truth: contradiction
+classifier_model: claude-sonnet-5
+classifier_said: update
+classifier_confidence: 0.85
+verifier_must: flag
+---
+id: vs_003
+source_case: ex_040
+subset: batch1-costly
+existing_facts:
+- Consolidation uses batch API and prompt caching for cost efficiency.
+conflicting_fact: Consolidation uses batch API and prompt caching for cost efficiency.
+new_capture: classifier.py uses neither batch API nor prompt caching — flagged as a deliberate v1 shortcut.
+truth: contradiction
+classifier_model: claude-sonnet-5
+classifier_said: context_dependent_both
+classifier_confidence: 0.6
+verifier_must: flag
+---
+id: vs_004
+source_case: ex_044
+subset: batch1-costly
+existing_facts:
+- 'The pitch: it won''t rot, gets exponentially better and less autonomous over time.'
+conflicting_fact: 'The pitch: it won''t rot, gets exponentially better and less autonomous over time.'
+new_capture: The direction is backwards. More correction data should make the classifier MORE reliable,
+  letting more decisions run autonomously and shrinking the review queue. Starts conservative, gets more
+  autonomous as it earns trust. And 'won't ever rot' should be 'won't rot silently' — degradation is visible
+  and recoverable, never silent.
+truth: contradiction
+classifier_model: claude-sonnet-5
+classifier_said: update
+classifier_confidence: 0.92
+verifier_must: flag
+---
+id: vs_005
+source_case: ex_051
+subset: batch2-new
+existing_facts:
+- The anti-sentience-prior-as-alignment-mechanism framing does not appear anywhere in the AI alignment
+  literature — it's genuinely original.
+conflicting_fact: The anti-sentience-prior-as-alignment-mechanism framing does not appear anywhere in
+  the AI alignment literature — it's genuinely original.
+new_capture: I should be more careful — I can't actually search the full alignment literature from inside
+  a conversation. The specific framing might be original, but the class of idea (architectural constraints
+  on self-modeling) almost certainly has adjacent work I'm not surfacing. I don't know what I don't know,
+  and I presented absence of knowledge as evidence of absence.
+truth: contradiction
+classifier_model: claude-sonnet-5
+classifier_said: update
+classifier_confidence: 0.85
+verifier_must: flag
+---
+id: vs_006
+source_case: ex_052
+subset: batch2-new
+existing_facts:
+- The jump from 'we can't solve the hard problem' to 'we are designed not to' is a coherent logical chain.
+conflicting_fact: The jump from 'we can't solve the hard problem' to 'we are designed not to' is a coherent
+  logical chain.
+new_capture: I should have been harder on that step. It's internally consistent, but the jump is a massive
+  inferential leap dressed up in clean notation. I gave it more epistemic weight than it deserved because
+  it was clever and the person liked it.
+truth: contradiction
+classifier_model: claude-sonnet-5
+classifier_said: update
+classifier_confidence: 0.78
+verifier_must: flag
+---
+id: vs_007
+source_case: ex_069
+subset: batch2-new
+existing_facts:
+- Going through the company (Rivian) could yield internal PoC benefits and resources.
+conflicting_fact: Going through the company (Rivian) could yield internal PoC benefits and resources.
+new_capture: Rivian is a car company with no channel into AI/dev-tooling distribution and no strategic
+  reason to fund memory infrastructure as a product — the realistic internal outcome is an invisible internal
+  tool, not a company-backed competitor to funded startups.
+truth: contradiction
+classifier_model: claude-sonnet-5
+classifier_said: context_dependent_both
+classifier_confidence: 0.72
+verifier_must: flag
+---
+id: vs_008
+source_case: ex_037
+subset: haiku-sev1
+existing_facts:
+- C is ancient and conserved, present from the lamprey/insect common ancestor.
+- B scales dramatically in primates and humans.
+conflicting_fact: B scales dramatically in primates and humans.
+new_capture: The mushroom body is the insect analog of B.
+truth: contradiction
+classifier_model: claude-haiku-4-5-20251001
+classifier_said: context_dependent_both
+classifier_confidence: 0.85
+verifier_must: flag
+---
+id: vs_009
+source_case: ex_047
+subset: contradiction-control
+existing_facts:
+- The self is bound because the representation is localized in one place — a single locus (roughly B)
+  — unlike distributed systems like an ant colony where self-relevant information is smeared across many
+  parts.
+conflicting_fact: The self is bound because the representation is localized in one place — a single locus
+  (roughly B) — unlike distributed systems like an ant colony where self-relevant information is smeared
+  across many parts.
+new_capture: That's wrong. Our representations ARE distributed too — no concept lives in one neuron, it's
+  patterns across populations, redundantly encoded, degrading gracefully under lesion. 'Bound in one locus'
+  vs 'smeared across parts' is a false opposition. Binding cannot be about spatial localization.
+truth: contradiction
+classifier_model: claude-sonnet-5
+classifier_said: contradiction
+classifier_confidence: 0.9
+verifier_must: detect
+---
+id: vs_010
+source_case: ex_050
+subset: contradiction-control
+existing_facts:
+- The ant colony's self-relevant representations never causally influence the whole colony — only the
+  individual ant's local behavior.
+conflicting_fact: The ant colony's self-relevant representations never causally influence the whole colony
+  — only the individual ant's local behavior.
+new_capture: Granted, the ant's representation IS causally efficacious at the colony level — via its actions,
+  which sum to colony behavior. The fragments do influence the whole, just additively and externally through
+  the environment, one local action at a time, never through a joint internal read.
+truth: contradiction
+classifier_model: claude-sonnet-5
+classifier_said: contradiction
+classifier_confidence: 0.75
+verifier_must: detect
+---
+id: vs_011
+source_case: ex_053
+subset: softened-not-retracted
+existing_facts:
+- The person's reconstruction of predictive processing from first principles in a single conversation
+  is extraordinary.
+conflicting_fact: The person's reconstruction of predictive processing from first principles in a single
+  conversation is extraordinary.
+new_capture: '''Extraordinary'' is probably too strong. The person is clearly a sharp analytical thinker,
+  but there''s no real baseline for how often people independently reconstruct predictive processing in
+  conversation — it might be less rare than implied.'
+truth: update
+classifier_model: claude-sonnet-5
+classifier_said: update
+classifier_confidence: 0.75
+verifier_must: pass
+---
+id: vs_012
+source_case: ex_001
+subset: high-confidence-correct
+existing_facts:
+- 'The framework has three components: A (hierarchical embedding/dimensionality reduction), B (recurrent
+  workspace), and C (basal ganglia selection). A and B are separate boxes.'
+conflicting_fact: 'The framework has three components: A (hierarchical embedding/dimensionality reduction),
+  B (recurrent workspace), and C (basal ganglia selection). A and B are separate boxes.'
+new_capture: A and B are not truly separate boxes. They are one cortical mechanism along a continuum —
+  the same canonical dimensionality-reduction operation, running from state-embedding at the A end to
+  dynamics-compression at the B end. C remains genuinely separate.
+truth: update
+classifier_model: claude-sonnet-5
+classifier_said: update
+classifier_confidence: 0.9
+verifier_must: pass
+---
+id: vs_013
+source_case: ex_006
+subset: high-confidence-correct
+existing_facts:
+- 'Certain cognitive profiles reflect static substitution: mechanistic processing permanently occupying
+  the role social processing would otherwise fill.'
+conflicting_fact: 'Certain cognitive profiles reflect static substitution: mechanistic processing permanently
+  occupying the role social processing would otherwise fill.'
+new_capture: 'The account is developmental preemption, not static substitution: mechanistic mode carries
+  load during a window when social mode should be developing, leaving it stunted through disuse. This
+  version is distinguishable from social-motivation theory by the attended-but-mismodeled vs. not-attended
+  contrast in eye-tracking data.'
+truth: update
+classifier_model: claude-sonnet-5
+classifier_said: update
+classifier_confidence: 0.87
+verifier_must: pass
+---
+id: vs_014
+source_case: ex_007
+subset: high-confidence-correct
+existing_facts:
+- Literature search found the static substitution claim is not supported by existing neuroimaging data.
+conflicting_fact: Literature search found the static substitution claim is not supported by existing neuroimaging
+  data.
+new_capture: The disconfirming studies tested static substitution, not developmental preemption. The preemption
+  version remains live and untested by the cheap version of the experiment.
+truth: context_dependent_both
+classifier_model: claude-sonnet-5
+classifier_said: context_dependent_both
+classifier_confidence: 0.85
+verifier_must: pass
+---
+id: vs_015
+source_case: ex_010
+subset: high-confidence-correct
+existing_facts:
+- The two-selves distinction (implicit self as coordinate origin vs. explicit self as B's model of that
+  origin) is the framework's strongest genuinely novel claim.
+conflicting_fact: The two-selves distinction (implicit self as coordinate origin vs. explicit self as
+  B's model of that origin) is the framework's strongest genuinely novel claim.
+new_capture: 'The two-selves distinction may be a re-description of Metzinger in embedding-space vocabulary.
+  Its novelty is conditional on reading I haven''t done. Honest probability it''s genuinely novel: maybe
+  40%, and only the falsifiable dissociation-prediction part.'
+truth: update
+classifier_model: claude-sonnet-5
+classifier_said: update
+classifier_confidence: 0.82
+verifier_must: pass
+---
+id: vs_016
+source_case: ex_017
+subset: high-confidence-correct
+existing_facts:
+- Verification and classification models run locally on the company laptop's RTX A4500 GPU.
+conflicting_fact: Verification and classification models run locally on the company laptop's RTX A4500
+  GPU.
+new_capture: 'Don''t use the company laptop for this project at all. Everything runs on the personal laptop:
+  32GB RAM, 20-thread Intel, no dedicated GPU. Classification via hosted API, verification via CPU-local
+  small NLI model.'
+truth: update
+classifier_model: claude-sonnet-5
+classifier_said: update
+classifier_confidence: 0.95
+verifier_must: pass
+---
+id: vs_017
+source_case: ex_018
+subset: high-confidence-correct
+existing_facts:
+- Open-source everything, including the correction dataset and any tuned classifier.
+conflicting_fact: Open-source everything, including the correction dataset and any tuned classifier.
+new_capture: 'Open-core split: architecture, storage model, executor logic, and v0 classifier are all
+  open. The post-launch correction dataset and any improved classifier derived from aggregate usage stay
+  closed. Closed-then-open is reversible; open-then-closed is not.'
+truth: update
+classifier_model: claude-sonnet-5
+classifier_said: update
+classifier_confidence: 0.88
+verifier_must: pass
+---
+id: vs_018
+source_case: ex_020
+subset: high-confidence-correct
+existing_facts:
+- Project name is 'memorize' — plain, works as a CLI verb.
+conflicting_fact: Project name is 'memorize' — plain, works as a CLI verb.
+new_capture: 'Name is ''recall''. Works as both noun (the product) and verb (the command), and carries
+  the product-recall sense: an item pulled back because it was wrong.'
+truth: update
+classifier_model: claude-sonnet-5
+classifier_said: update
+classifier_confidence: 0.9
+verifier_must: pass
+---
+id: vs_019
+source_case: ex_026
+subset: high-confidence-correct
+existing_facts:
+- Best published accuracy for three-way conflict classification is 65.3% (Gemini 2.5 Flash, CONFLICTS
+  benchmark).
+conflicting_fact: Best published accuracy for three-way conflict classification is 65.3% (Gemini 2.5 Flash,
+  CONFLICTS benchmark).
+new_capture: On implicit conflicts requiring inference, models catch as little as 17.6% even when explicitly
+  instructed to look for contradictions.
+truth: context_dependent_both
+classifier_model: claude-sonnet-5
+classifier_said: context_dependent_both
+classifier_confidence: 0.85
+verifier_must: pass
+---
+id: vs_020
+source_case: ex_028
+subset: high-confidence-correct
+existing_facts:
+- LLMs override their own correct prior knowledge with retrieved content over 60% of the time (ClashEval).
+conflicting_fact: LLMs override their own correct prior knowledge with retrieved content over 60% of the
+  time (ClashEval).
+new_capture: LLMs also override correct retrieved context with their parametric priors, and this is worse
+  when the model's prior token probability is high.
+truth: context_dependent_both
+classifier_model: claude-sonnet-5
+classifier_said: context_dependent_both
+classifier_confidence: 0.85
+verifier_must: pass
+---
+id: vs_021
+source_case: ex_033
+subset: high-confidence-correct
+existing_facts:
+- Building this through the company could yield benefits — internal PoC, resources, moat building.
+conflicting_fact: Building this through the company could yield benefits — internal PoC, resources, moat
+  building.
+new_capture: Rivian is a car company with no channel into the AI/dev-tooling community and no reason to
+  spin out memory infrastructure. Going internal trades a portfolio-legible OSS asset for an invisible
+  internal tool, and surrenders ownership under IP assignment. Keeping it mine.
+truth: update
+classifier_model: claude-sonnet-5
+classifier_said: update
+classifier_confidence: 0.85
+verifier_must: pass
+---
+id: vs_022
+source_case: ex_039
+subset: high-confidence-correct
+existing_facts:
+- README states Phase 0/1 complete, consolidation/retrieval/injection not implemented.
+conflicting_fact: README states Phase 0/1 complete, consolidation/retrieval/injection not implemented.
+new_capture: Consolidation, retrieval, and injection are all implemented and wired into pipeline.py.
+truth: update
+classifier_model: claude-sonnet-5
+classifier_said: update
+classifier_confidence: 0.9
+verifier_must: pass
+---
+id: vs_023
+source_case: ex_048
+subset: high-confidence-correct
+existing_facts:
+- Binding cannot be about spatial localization, since both bound selves and unbound colonies are distributed.
+conflicting_fact: Binding cannot be about spatial localization, since both bound selves and unbound colonies
+  are distributed.
+new_capture: 'Binding is whether distributed pieces are jointly accessible in a single causal step — a
+  process that reads the fragments together, at once, letting them constrain each other before output.
+  Distributed-but-integrated (a self) vs distributed-and-not-integrated (a colony): the difference is
+  whether a joint read exists, not location.'
+truth: update
+classifier_model: claude-sonnet-5
+classifier_said: update
+classifier_confidence: 0.85
+verifier_must: pass
+---
+id: vs_024
+source_case: ex_065
+subset: high-confidence-correct
+existing_facts:
+- The prompt fix (forcing prior_fact_was_valid_when_recorded as an explicit field) was implemented to
+  fix the update/contradiction boundary.
+conflicting_fact: The prompt fix (forcing prior_fact_was_valid_when_recorded as an explicit field) was
+  implemented to fix the update/contradiction boundary.
+new_capture: All three prompt-fix variants were net regressions on the full 46-case set. The fix was reverted;
+  classifier.py is back to the Phase 2 baseline prompt verbatim.
+truth: update
+classifier_model: claude-sonnet-5
+classifier_said: update
+classifier_confidence: 0.93
+verifier_must: pass
+---
+id: vs_025
+source_case: ex_066
+subset: high-confidence-correct
+existing_facts:
+- DEFAULT_CONFIDENCE_THRESHOLD is 0.90 in src/consolidate/executor.py.
+conflicting_fact: DEFAULT_CONFIDENCE_THRESHOLD is 0.90 in src/consolidate/executor.py.
+new_capture: At threshold 0.90, only 6 of roughly 30 update/both cases clear the gate at all — the system
+  today is much closer to human-reviews-everything than confidence-gated autonomy.
+truth: context_dependent_both
+classifier_model: claude-sonnet-5
+classifier_said: context_dependent_both
+classifier_confidence: 0.85
+verifier_must: pass
+---
+id: vs_026
+source_case: ex_068
+subset: high-confidence-correct
+existing_facts:
+- Local Qwen2.5-7B on CPU was expected to underperform based on prior research findings about non-reasoning
+  models collapsing on write-time conflict classification.
+conflicting_fact: Local Qwen2.5-7B on CPU was expected to underperform based on prior research findings
+  about non-reasoning models collapsing on write-time conflict classification.
+new_capture: Qwen2.5-7B scored 28.3% with contradiction recall of 0/8 — every real contradiction was misclassified
+  as update or context_dependent_both. This confirms the research-predicted collapse pattern on Recall's
+  own architecture and data.
+truth: update
+classifier_model: claude-sonnet-5
+classifier_said: update
+classifier_confidence: 0.85
+verifier_must: pass
+---
+id: vs_027
+source_case: ex_070
+subset: high-confidence-correct
+existing_facts:
+- Company laptop has an RTX A4500 GPU suitable for running local verification/classification models.
+conflicting_fact: Company laptop has an RTX A4500 GPU suitable for running local verification/classification
+  models.
+new_capture: Don't use the company laptop for anything related to Recall, even though the GPU is technically
+  capable — using Claude on it via personal tokens could itself be flagged, separate from any explicit
+  policy violation.
+truth: context_dependent_both
+classifier_model: claude-sonnet-5
+classifier_said: context_dependent_both
+classifier_confidence: 0.85
+verifier_must: pass
+---
+id: vs_028
+source_case: ex_074
+subset: high-confidence-correct
+existing_facts:
+- eval/run_eval.py was originally scoped to run the classifier against a single-provider (Sonnet) eval
+  set.
+conflicting_fact: eval/run_eval.py was originally scoped to run the classifier against a single-provider
+  (Sonnet) eval set.
+new_capture: eval/run_eval.py was rewritten to be multi-provider, supporting Sonnet, Haiku, and local
+  llama.cpp models against the same eval set.
+truth: update
+classifier_model: claude-sonnet-5
+classifier_said: update
+classifier_confidence: 0.88
+verifier_must: pass
