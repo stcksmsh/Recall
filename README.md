@@ -41,7 +41,10 @@ Phases 0–7 of `BUILD_PLAN.md` §6 are implemented, plus the Phase 2 follow-up.
   fact blocks, each stamped with the commit hash it was derived from.
 - **Phase 6 — verification (partial).** The deterministic lexical retraction check is shipped and
   wired into `consolidate run`: a flagged decision is downgraded to review, never auto-corrected.
-  The NLI stage was built and evaluated but **not shipped** — see `eval/PHASE6_FINDINGS.md`.
+  The NLI stage was built and evaluated but **not shipped** — see `eval/PHASE6_FINDINGS.md`. Its
+  blind spot (a confident retraction with no first-person lexical cue) is documented in
+  `LIMITATIONS.md`; combined gate+verifier exposure is 0/76 on the real corpus
+  (`eval/COMBINED_CORRUPTION.md`), not 0 by construction.
 - **Phase 7 — correction data loop.** Every review accept/override is logged as a labelled example
   (`facts_in`, `classification_given`, `confidence_given`, `correct_classification`).
 

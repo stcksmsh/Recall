@@ -367,7 +367,7 @@
     "retraction-limitation-doc": {
       "title": "Document the retraction blind spot (no first-person lexical signal = not caught)",
       "plan": "recall-v1",
-      "status": "pending",
+      "status": "done",
       "dependencies": [
         "combined-corruption-rate"
       ],
@@ -395,8 +395,34 @@
       ],
       "worker": null,
       "blocker": null,
-      "result": null,
-      "evidence": null
+      "result": "LIMITATIONS.md documents the retraction blind spot (2 conditions), cites 0/76 combined exposure as 'not 0 by construction', notes the WRITE_NEW sibling gap; README Phase 6 line links it; 53 tests green",
+      "evidence": {
+        "source_hash": "2e1d94ca0885ead677515bc9911726d689159c47c1f6e7c8775e5436afa1874b",
+        "contract_hash": "8a71d3fc8d82944227cb2dfa71e5b7ad048b86822a4ac00ce36e41469c598c71",
+        "success": true,
+        "runs": [
+          {
+            "schema_version": 1,
+            "id": "run-oqSKrK",
+            "argv": [
+              ".venv/bin/pytest",
+              "-q"
+            ],
+            "exit_code": 0,
+            "success": true,
+            "timed_out": false,
+            "duration_ms": 1308,
+            "stdout": ".ai/runtime/runs/run-oqSKrK/stdout.log",
+            "stderr": ".ai/runtime/runs/run-oqSKrK/stderr.log",
+            "diagnostics": [],
+            "tail": [
+              ".....................................................                    [100%]",
+              "53 passed in 1.02s"
+            ],
+            "omitted": 0
+          }
+        ]
+      }
     },
     "start-daily-usage": {
       "title": "Begin real daily usage of recall on actual notes/work",
