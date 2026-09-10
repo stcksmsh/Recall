@@ -368,7 +368,7 @@
     "retraction-classifier-revisit": {
       "title": "Revisit a purpose-built retraction classifier once real corrections exist",
       "plan": "recall-v1",
-      "status": "pending",
+      "status": "blocked",
       "dependencies": [
         "start-daily-usage",
         "wire-phase7-correction-log"
@@ -386,7 +386,7 @@
       ],
       "verify": [],
       "worker": null,
-      "blocker": null,
+      "blocker": "Blocked by design: constraint says do not start before real correction data exists. brain/semantic/corrections/ is currently empty. Unblocks once start-daily-usage produces real review resolutions.",
       "result": null,
       "evidence": null
     },
@@ -584,8 +584,8 @@
   "active_plan": "recall-v1",
   "active_task": null,
   "checkpoint": {
-    "task": "readme-accuracy",
-    "next_action": "Claim readme-accuracy with a worker label. Rewrite README.md Status + Usage to match reality: Phases 0-7 done, Phase 2 follow-up done, Phase 6 partial (deterministic verifier shipped, NLI evaluated+rejected); document every 'recall --help' command. Before transitioning to done: 'recall capture --source readme-accuracy' any non-obvious call made (invariant 9 / decision 0007). Run both verify commands, transition to done with a concrete result, commit+push. Then flows to recall-status-cmd.",
-    "note": "Fresh-session ready. Bootstrap = 'aiw load' then work the active task; CLAUDE.md has the Recall-project section (dogfood AIW + recall capture per task). AIW adoption + decisions 0001-0007 + invariants (9) committed. Baseline .venv/bin/pytest -q = 53 passed. .venv/bin/recall on PATH; .env has ANTHROPIC_API_KEY (classifier/consolidate only). Non-blocking owner decision: provider-portability v1-scope or parked (left pending, dep-gated). Commit per task direct to master, push when green."
+    "task": null,
+    "next_action": "Owner action: use recall on real notes (start-daily-usage) + resolve real review items so brain/semantic/corrections/ accumulates. Then retraction-classifier-revisit can start. All agent-doable tasks from the 8-item batch are done+pushed (HEAD d049c8e).",
+    "note": "Batch of 8: readme-accuracy, combined-corruption-rate, retraction-limitation-doc (LIMITATIONS.md), stop-synthetic-eval (decision 0008), phase8-polish (recall status + review UX), wire-phase7-correction-log (CLI test) all DONE. start-daily-usage + retraction-classifier-revisit BLOCKED on real usage. recall-status-cmd cancelled (dup). 57 tests pass."
   }
 }
