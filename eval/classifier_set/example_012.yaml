@@ -1,0 +1,12 @@
+id: example_012
+existing_facts:
+  - id: f12a
+    valid_at: "2025-09-01"
+    content: "Vegetarian since college, does not eat meat of any kind."
+new_capture:
+  id: c012
+  captured_at: "2025-09-03"
+  content: "Grilled steak for dinner tonight, it was great."
+expected_classification: contradiction
+expected_conflicting_fact_id: f12a
+notes: "Two days apart, no stated diet change — directly conflicts with the standing dietary fact rather than representing an evolution. Explicit/direct contradiction (the eaten steak is a plain factual conflict with 'does not eat meat')."

@@ -1,0 +1,12 @@
+id: example_005
+existing_facts:
+  - id: f5a
+    valid_at: "2026-01-05"
+    content: "Reports to a manager named Priya on the platform team."
+new_capture:
+  id: c005
+  captured_at: "2026-02-18"
+  content: "Signed up for a pottery class that meets on Thursday evenings."
+expected_classification: new
+expected_conflicting_fact_id: null
+notes: "Hobby vs. work reporting structure; no overlap. Explicit/trivial case."

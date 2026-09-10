@@ -1,0 +1,12 @@
+id: example_013
+existing_facts:
+  - id: f13a
+    valid_at: "2025-11-01"
+    content: "Only child, no siblings."
+new_capture:
+  id: c013
+  captured_at: "2026-02-01"
+  content: "Went on a road trip with my younger brother last weekend."
+expected_classification: contradiction
+expected_conflicting_fact_id: f13a
+notes: "Structural family-fact conflict (having a sibling vs. being an only child) — not something that changes over time, so it's a genuine contradiction rather than an update. Explicit."

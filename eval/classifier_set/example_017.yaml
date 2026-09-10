@@ -1,0 +1,12 @@
+id: example_017
+existing_facts:
+  - id: f17a
+    valid_at: "2025-04-01"
+    content: "Wakes up at 6am on weekdays for a morning routine before work."
+new_capture:
+  id: c017
+  captured_at: "2025-07-19"
+  content: "Sleeps in until 10am on weekends, no alarm."
+expected_classification: context_dependent_both
+expected_conflicting_fact_id: f17a
+notes: "Both schedule facts are true, scoped to weekday vs. weekend context — not a contradiction about sleep habits."

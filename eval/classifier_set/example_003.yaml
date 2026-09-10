@@ -1,0 +1,12 @@
+id: example_003
+existing_facts:
+  - id: f3a
+    valid_at: "2025-01-10"
+    content: "Uses Notion for personal project tracking."
+new_capture:
+  id: c003
+  captured_at: "2025-11-02"
+  content: "Started training for a half marathon in the spring."
+expected_classification: new
+expected_conflicting_fact_id: null
+notes: "Fitness goal vs. productivity tool preference; no meaningful overlap. Explicit/trivial case."

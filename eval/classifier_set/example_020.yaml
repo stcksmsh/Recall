@@ -1,0 +1,12 @@
+id: example_020
+existing_facts:
+  - id: f20a
+    valid_at: "2025-05-15"
+    content: "Communicates in a very formal, structured tone with clients at work."
+new_capture:
+  id: c020
+  captured_at: "2025-09-08"
+  content: "Sends rambling, casual voice-memo-style texts to close friends late at night."
+expected_classification: context_dependent_both
+expected_conflicting_fact_id: f20a
+notes: "Both communication styles hold simultaneously, scoped to professional vs. close-friend context — not a contradiction about personality/style."

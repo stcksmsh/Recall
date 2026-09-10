@@ -1,0 +1,12 @@
+id: example_015
+existing_facts:
+  - id: f15a
+    valid_at: "2025-08-01"
+    content: "Avoids caffeine entirely due to a heart arrhythmia diagnosis."
+new_capture:
+  id: c015
+  captured_at: "2025-08-25"
+  content: "Had two espressos this morning to power through a big deadline."
+expected_classification: contradiction
+expected_conflicting_fact_id: f15a
+notes: "Implicit: no statement that the diagnosis changed or caffeine is now fine; the action just quietly conflicts with a medically-motivated standing fact. Requires inferring this isn't a sanctioned change."

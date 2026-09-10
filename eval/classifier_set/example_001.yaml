@@ -1,0 +1,9 @@
+id: example_001
+existing_facts: []
+new_capture:
+  id: c001
+  captured_at: "2025-03-12"
+  content: "Started learning to play the mandolin on weekends."
+expected_classification: new
+expected_conflicting_fact_id: null
+notes: "No existing facts at all; nothing to relate to. Explicit/trivial case."

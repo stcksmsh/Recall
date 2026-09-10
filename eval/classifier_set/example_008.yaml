@@ -1,0 +1,12 @@
+id: example_008
+existing_facts:
+  - id: f8a
+    valid_at: "2025-05-10"
+    content: "Manager is Priya on the platform team."
+new_capture:
+  id: c008
+  captured_at: "2026-03-01"
+  content: "Now reports to Jordan after the reorg last month."
+expected_classification: update
+expected_conflicting_fact_id: f8a
+notes: "Explicit supersession, cause given ('after the reorg'); old manager fact becomes historical."

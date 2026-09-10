@@ -1,0 +1,12 @@
+id: example_007
+existing_facts:
+  - id: f7a
+    valid_at: "2024-11-01"
+    content: "Lives in Austin, Texas."
+new_capture:
+  id: c007
+  captured_at: "2026-01-20"
+  content: "Moved to Denver, Colorado last week."
+expected_classification: update
+expected_conflicting_fact_id: f7a
+notes: "Explicit relocation language ('moved to'); clearly supersedes prior residence, not a contradiction since it's a time-ordered change."

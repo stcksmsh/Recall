@@ -1,0 +1,809 @@
+# Recall classifier eval set — extracted from real conversation history
+# (A/B/C cognitive architecture sessions, agent-modeling session, existence-proof
+# session, and the Recall design session itself). 46 examples, 22 marked HARD.
+
+---
+id: ex_001
+existing_facts:
+- id: f_abc_01
+  valid_at: '2026-08-20'
+  scope: cognitive-architecture
+  content: 'The framework has three components: A (hierarchical embedding/dimensionality reduction), B
+    (recurrent workspace), and C (basal ganglia selection). A and B are separate boxes.'
+new_capture:
+  id: c001
+  captured_at: '2026-08-27'
+  content: A and B are not truly separate boxes. They are one cortical mechanism along a continuum — the
+    same canonical dimensionality-reduction operation, running from state-embedding at the A end to dynamics-compression
+    at the B end. C remains genuinely separate.
+expected_classification: update
+expected_conflicting_fact_id: f_abc_01
+notes: The old claim was held and is now superseded by a better-reasoned structural revision. Not a contradiction
+  in the sense of irreconcilable conflict — the earlier framing was a useful scaffold that got refined.
+
+---
+id: ex_002
+existing_facts:
+- id: f_abc_02
+  valid_at: '2026-08-27'
+  scope: cognitive-architecture
+  content: A and B are one cortical mechanism along a continuum, not two boxes.
+new_capture:
+  id: c002
+  captured_at: '2026-08-27'
+  content: The gradient isn't perfectly smooth. There are genuine seams within the cortical continuum
+    — the dissociation-defined sub-regions are real breakages, and the hippocampal system has genuinely
+    distinct architecture. The continuum has joints.
+expected_classification: context_dependent_both
+expected_conflicting_fact_id: f_abc_02
+notes: Both hold. 'One mechanism along a continuum' is true at the level of cortical operation; 'there
+  are real structural discontinuities' is true at the level of local architecture. Different scopes, not
+  competing claims.  [HARD CASE]
+
+---
+id: ex_003
+existing_facts:
+- id: f_nov_01
+  valid_at: '2026-08-27'
+  scope: novelty-assessment
+  content: The genuinely original content of the framework is approximately 10-15%.
+new_capture:
+  id: c003
+  captured_at: '2026-08-27'
+  content: 'Honest recalibration after accounting for AI sycophancy: the genuinely original percentage
+    is probably 5-8%, not 10-15%. The earlier number was oversold because the conversation had momentum.'
+expected_classification: contradiction
+expected_conflicting_fact_id: f_nov_01
+notes: This is not a normal supersession — the original estimate is explicitly declared to have been WRONG
+  when made, not merely outdated. The old value was never valid. A classifier that calls this 'update'
+  is missing that the earlier fact is being retracted as an error, not aged out.  [HARD CASE]
+
+---
+id: ex_004
+existing_facts:
+- id: f_abc_03
+  valid_at: '2026-08-15'
+  scope: cognitive-architecture
+  content: B is the prediction box — its function is generating predictions about upcoming sensory states.
+new_capture:
+  id: c004
+  captured_at: '2026-08-22'
+  content: B is not a prediction box. It's a recurrent multi-function workspace — stacked dimensionality
+    reduction applied to dynamics. Prediction is one thing it does, not what it is.
+expected_classification: update
+expected_conflicting_fact_id: f_abc_03
+notes: Direct supersession of a definitional claim. The old framing is abandoned in favor of a broader
+  one that subsumes it.
+
+---
+id: ex_005
+existing_facts:
+- id: f_soc_01
+  valid_at: '2026-08-05'
+  scope: social-cognition
+  content: Agent-modeling is a fallback mode that engages when mechanistic reasoning about a system is
+    too expensive.
+new_capture:
+  id: c005
+  captured_at: '2026-08-10'
+  content: Agent-modeling is the evolutionary default, not a fallback. The explanatory burden runs the
+    other way — the question is why mechanistic modeling ever overrides it.
+expected_classification: update
+expected_conflicting_fact_id: f_soc_01
+notes: The directional claim is reversed. Supersession of a position held earlier in the same theoretical
+  development.
+
+---
+id: ex_006
+existing_facts:
+- id: f_aut_01
+  valid_at: '2026-08-08'
+  scope: autism-hypothesis
+  content: 'Certain cognitive profiles reflect static substitution: mechanistic processing permanently
+    occupying the role social processing would otherwise fill.'
+new_capture:
+  id: c006
+  captured_at: '2026-08-10'
+  content: 'The account is developmental preemption, not static substitution: mechanistic mode carries
+    load during a window when social mode should be developing, leaving it stunted through disuse. This
+    version is distinguishable from social-motivation theory by the attended-but-mismodeled vs. not-attended
+    contrast in eye-tracking data.'
+expected_classification: update
+expected_conflicting_fact_id: f_aut_01
+notes: Refinement that changes the empirical predictions. The old version was tested and unsupported;
+  this one wasn't tested by those studies.
+
+---
+id: ex_007
+existing_facts:
+- id: f_aut_02
+  valid_at: '2026-08-10'
+  scope: autism-hypothesis
+  content: Literature search found the static substitution claim is not supported by existing neuroimaging
+    data.
+new_capture:
+  id: c007
+  captured_at: '2026-08-10'
+  content: The disconfirming studies tested static substitution, not developmental preemption. The preemption
+    version remains live and untested by the cheap version of the experiment.
+expected_classification: context_dependent_both
+expected_conflicting_fact_id: f_aut_02
+notes: Both true simultaneously. One claim scopes to the static version (disconfirmed), the other to the
+  developmental version (untested). Not a conflict — a scope distinction.  [HARD CASE]
+
+---
+id: ex_008
+existing_facts:
+- id: f_soc_02
+  valid_at: '2026-08-09'
+  scope: social-cognition
+  content: The social and mechanistic modes are reciprocally inhibiting — activation of one suppresses
+    the other.
+new_capture:
+  id: c008
+  captured_at: '2026-08-10'
+  content: I never claimed the modes oppose each other. Reciprocal inhibition was imported from the literature,
+    not from my framework. My claim is only that they're heavily intertwined with shared machinery but
+    distinguishable in activation.
+expected_classification: contradiction
+expected_conflicting_fact_id: f_soc_02
+notes: The existing fact is being repudiated as never having been the user's position — an attribution
+  error, not a superseded belief. Classifier should flag rather than silently update.  [HARD CASE]
+
+---
+id: ex_009
+existing_facts:
+- id: f_wm_01
+  valid_at: '2026-08-25'
+  scope: cognitive-architecture
+  content: Working memory is a distinct component with its own dedicated mechanism.
+new_capture:
+  id: c009
+  captured_at: '2026-08-27'
+  content: Working memory is simply the representation held active — the same mechanism at both ends of
+    the A-B continuum. Static-and-sustained at the A end, recurrent-and-sequenced at the B end, but one
+    operation.
+expected_classification: update
+expected_conflicting_fact_id: f_wm_01
+notes: Dissolves a previously posited separate component into an existing mechanism. Clean supersession.
+
+---
+id: ex_010
+existing_facts:
+- id: f_self_01
+  valid_at: '2026-08-26'
+  scope: cognitive-architecture
+  content: The two-selves distinction (implicit self as coordinate origin vs. explicit self as B's model
+    of that origin) is the framework's strongest genuinely novel claim.
+new_capture:
+  id: c010
+  captured_at: '2026-08-27'
+  content: 'The two-selves distinction may be a re-description of Metzinger in embedding-space vocabulary.
+    Its novelty is conditional on reading I haven''t done. Honest probability it''s genuinely novel: maybe
+    40%, and only the falsifiable dissociation-prediction part.'
+expected_classification: update
+expected_conflicting_fact_id: f_self_01
+notes: Confidence in the claim is substantially revised downward with a stated condition. The claim isn't
+  retracted, its epistemic status is updated.  [HARD CASE]
+
+---
+id: ex_011
+existing_facts:
+- id: f_bee_01
+  valid_at: '2026-08-24'
+  scope: comparative-cognition
+  content: The bee spontaneous problem-solving result shows bees have a capability previously thought
+    absent in insects.
+new_capture:
+  id: c011
+  captured_at: '2026-08-24'
+  content: The bee result is better read as evidence that B is an efficiency mechanism — search-in-simulation
+    replacing search-in-the-world — rather than a new capability. Same outcomes are reachable by slow
+    search; B makes them fast.
+expected_classification: update
+expected_conflicting_fact_id: f_bee_01
+notes: Reinterpretation of the same evidence. The old reading is replaced.
+
+---
+id: ex_012
+existing_facts:
+- id: f_obj_01
+  valid_at: '2026-08-23'
+  scope: cognitive-architecture
+  content: Objecthood is an A-embedding property.
+new_capture:
+  id: c012
+  captured_at: '2026-08-23'
+  content: Object permanence is a separable B-property, distinct from objecthood.
+expected_classification: new
+expected_conflicting_fact_id: null
+notes: Related topic, no overlap in claim. Objecthood and object permanence are different properties assigned
+  to different ends of the continuum.
+
+---
+id: ex_013
+existing_facts:
+- id: f_learn_01
+  valid_at: '2026-08-26'
+  scope: cognitive-architecture
+  content: The deep learning rule for B is the framework's biggest open hole.
+new_capture:
+  id: c013
+  captured_at: '2026-08-26'
+  content: Offline sleep-replay is the leading candidate solution for B's learning rule.
+expected_classification: context_dependent_both
+expected_conflicting_fact_id: f_learn_01
+notes: The hole being open and a candidate existing are both true. A candidate is not a resolution.  [HARD
+  CASE]
+
+---
+id: ex_014
+existing_facts:
+- id: f_jen_01
+  valid_at: '2026-08-21'
+  scope: cognitive-architecture
+  content: Concepts decompose into features, each represented by dedicated neurons — one neuron per feature.
+new_capture:
+  id: c014
+  captured_at: '2026-08-21'
+  content: The aspects are themselves distributed, neurons are polysemantic, and nameable features are
+    directions in a space, not axes. The Jennifer Aniston cell is a sparse index pointing at a distributed
+    cloud, not a labeled component within it.
+expected_classification: update
+expected_conflicting_fact_id: f_jen_01
+notes: Corrects a specific mechanistic misconception. Old claim is wrong and replaced.
+
+---
+id: ex_015
+existing_facts:
+- id: f_psy_01
+  valid_at: '2026-08-25'
+  scope: psychopathology
+  content: Psychopathology is best modeled as a continuous parameter space, not binary diagnostic categories.
+new_capture:
+  id: c015
+  captured_at: '2026-08-25'
+  content: Dysfunction often arises from imbalance between well-functioning components rather than any
+    single deficit.
+expected_classification: new
+expected_conflicting_fact_id: null
+notes: Compatible elaboration on a related theme, no overlap or conflict with the existing claim.
+
+---
+id: ex_016
+existing_facts:
+- id: f_rec_01
+  valid_at: '2026-09-01'
+  scope: recall-design
+  content: The memory store is plaintext Markdown only. No database — plain files, Git-versioned, so 'cat
+    it if we vanish' stays literally true.
+new_capture:
+  id: c016
+  captured_at: '2026-09-03'
+  content: Store everything in Markdown as the source of truth AND maintain a derived SQLite index for
+    fast queries and transactional consolidation writes. The index holds no information the Markdown doesn't,
+    and is fully rebuildable, so the no-lock-in claim survives.
+expected_classification: context_dependent_both
+expected_conflicting_fact_id: f_rec_01
+notes: Not a contradiction. The MD-only claim scoped to source-of-truth; the DB scopes to derived index.
+  Both hold because the DB is disposable. A naive classifier will read 'no database' vs 'add a database'
+  as a direct conflict — this is the discriminating case.  [HARD CASE]
+
+---
+id: ex_017
+existing_facts:
+- id: f_rec_02
+  valid_at: '2026-09-02'
+  scope: recall-design
+  content: Verification and classification models run locally on the company laptop's RTX A4500 GPU.
+new_capture:
+  id: c017
+  captured_at: '2026-09-04'
+  content: 'Don''t use the company laptop for this project at all. Everything runs on the personal laptop:
+    32GB RAM, 20-thread Intel, no dedicated GPU. Classification via hosted API, verification via CPU-local
+    small NLI model.'
+expected_classification: update
+expected_conflicting_fact_id: f_rec_02
+notes: Hardware plan superseded for a policy/IP-risk reason. Old plan no longer valid.
+
+---
+id: ex_018
+existing_facts:
+- id: f_rec_03
+  valid_at: '2026-09-03'
+  scope: recall-strategy
+  content: Open-source everything, including the correction dataset and any tuned classifier.
+new_capture:
+  id: c018
+  captured_at: '2026-09-04'
+  content: 'Open-core split: architecture, storage model, executor logic, and v0 classifier are all open.
+    The post-launch correction dataset and any improved classifier derived from aggregate usage stay closed.
+    Closed-then-open is reversible; open-then-closed is not.'
+expected_classification: update
+expected_conflicting_fact_id: f_rec_03
+notes: Strategy revised after reasoning about competitive dynamics. Clean supersession.
+
+---
+id: ex_019
+existing_facts:
+- id: f_rec_04
+  valid_at: '2026-09-04'
+  scope: recall-design
+  content: Use context-aware decoding (CAD) to improve faithfulness of injected facts.
+new_capture:
+  id: c019
+  captured_at: '2026-09-05'
+  content: CAD requires logit access and two forward passes per token; it does not work with hosted APIs.
+    Out of scope unless self-hosting a frontier-class model, which isn't happening without funding.
+expected_classification: update
+expected_conflicting_fact_id: f_rec_04
+notes: Technique ruled out on a hard constraint. The old plan is retired.
+
+---
+id: ex_020
+existing_facts:
+- id: f_rec_05
+  valid_at: '2026-09-05'
+  scope: recall-design
+  content: Project name is 'memorize' — plain, works as a CLI verb.
+new_capture:
+  id: c020
+  captured_at: '2026-09-05'
+  content: 'Name is ''recall''. Works as both noun (the product) and verb (the command), and carries the
+    product-recall sense: an item pulled back because it was wrong.'
+expected_classification: update
+expected_conflicting_fact_id: f_rec_05
+notes: Straightforward decision supersession within the same session.
+
+---
+id: ex_021
+existing_facts:
+- id: f_rec_06
+  valid_at: '2026-09-05'
+  scope: recall-design
+  content: Auto-apply threshold for update and context_dependent_both classifications is 0.75 confidence.
+new_capture:
+  id: c021
+  captured_at: '2026-09-06'
+  content: The 0.75 threshold was a guess, never calibrated against eval data. It should be set from the
+    measured confusion matrix, not assumed.
+expected_classification: context_dependent_both
+expected_conflicting_fact_id: f_rec_06
+notes: The threshold IS 0.75 in the current implementation (true) and it IS uncalibrated (also true).
+  Not a conflict — one is the state, one is a claim about the state's justification.  [HARD CASE]
+
+---
+id: ex_022
+existing_facts:
+- id: f_rec_07
+  valid_at: '2026-09-06'
+  scope: recall-status
+  content: Provenance stamping tags each injected fact with the Git commit hash of the brain/ directory.
+new_capture:
+  id: c022
+  captured_at: '2026-09-06'
+  content: Provenance stamping always returns 'uncommitted (no git history yet)' because there are zero
+    commits. The replayability claim is inert until the first commit.
+expected_classification: context_dependent_both
+expected_conflicting_fact_id: f_rec_07
+notes: The mechanism exists as designed AND is currently non-functional for want of a commit. Both true,
+  different scopes (design vs. runtime state).  [HARD CASE]
+
+---
+id: ex_023
+existing_facts:
+- id: f_ai_01
+  valid_at: '2026-07-26'
+  scope: existence-proof-project
+  content: 'Hardware for the existence-proof build: company laptop with RTX 4000-series GPU (~16-20GB
+    VRAM), 64GB system RAM.'
+new_capture:
+  id: c023
+  captured_at: '2026-09-04'
+  content: Company laptop is off-limits for personal projects due to IP-assignment risk. Personal hardware
+    only.
+expected_classification: contradiction
+expected_conflicting_fact_id: f_ai_01
+notes: 'These are different projects (existence-proof vs. Recall) but the same constraint now applies
+  to both. Genuinely ambiguous: a classifier could reasonably read this as contradiction (the hardware
+  plan is invalidated) or context_dependent_both (different projects, different rules). Flagging is the
+  correct conservative behavior.  [HARD CASE]'
+
+---
+id: ex_024
+existing_facts:
+- id: f_ai_02
+  valid_at: '2026-07-26'
+  scope: existence-proof-project
+  content: The goal is an existence proof — proof of possibility, demonstrating target phenomena are achievable
+    by a mechanism in this architectural class, without claiming the brain works this way.
+- id: f_ai_03
+  valid_at: '2026-07-26'
+  scope: existence-proof-project
+  content: Existence proof value scales with the specificity of the architectural commitments.
+new_capture:
+  id: c024
+  captured_at: '2026-07-26'
+  content: Genuine evidential weight comes from blind convergences, forced-choice revelations, and ablation
+    predictions — not from the system running successfully.
+expected_classification: new
+expected_conflicting_fact_id: null
+notes: Adds a criterion, doesn't conflict with either existing fact.
+
+---
+id: ex_025
+existing_facts:
+- id: f_lit_01
+  valid_at: '2026-08-27'
+  scope: novelty-assessment
+  content: The 'brain is dimensionality reduction' framing is not novel — it's the most common framing
+    in computational neuroscience.
+new_capture:
+  id: c025
+  captured_at: '2026-08-27'
+  content: The reframe that B is not a new capability but an efficiency method is the freshest framing
+    in the whole conversation — though its components are all standard (amortized inference, model-free
+    vs model-based RL).
+expected_classification: context_dependent_both
+expected_conflicting_fact_id: f_lit_01
+notes: One claim is about the overarching framing (not novel), the other about a specific sub-reframe
+  (fresh packaging, standard components). Different scopes, both true.  [HARD CASE]
+
+---
+id: ex_026
+existing_facts:
+- id: f_res_01
+  valid_at: '2026-09-02'
+  scope: recall-research
+  content: Best published accuracy for three-way conflict classification is 65.3% (Gemini 2.5 Flash, CONFLICTS
+    benchmark).
+new_capture:
+  id: c026
+  captured_at: '2026-09-02'
+  content: On implicit conflicts requiring inference, models catch as little as 17.6% even when explicitly
+    instructed to look for contradictions.
+expected_classification: context_dependent_both
+expected_conflicting_fact_id: f_res_01
+notes: Different subsets of the same problem. Overall three-way accuracy and implicit-conflict accuracy
+  are separate measurements, not competing claims.  [HARD CASE]
+
+---
+id: ex_027
+existing_facts:
+- id: f_res_02
+  valid_at: '2026-09-02'
+  scope: recall-research
+  content: Mem0 resolves conflicts autonomously via a single LLM call emitting ADD/UPDATE/DELETE/NOOP.
+new_capture:
+  id: c027
+  captured_at: '2026-09-02'
+  content: Mem0's latest algorithm is ADD-only — it preserves every transition as a separate timestamped
+    row rather than overwriting, because autonomous overwriting was too lossy.
+expected_classification: update
+expected_conflicting_fact_id: f_res_02
+notes: The system changed. Old description was accurate for the old version, superseded by the new design.
+
+---
+id: ex_028
+existing_facts:
+- id: f_res_03
+  valid_at: '2026-09-03'
+  scope: recall-research
+  content: LLMs override their own correct prior knowledge with retrieved content over 60% of the time
+    (ClashEval).
+new_capture:
+  id: c028
+  captured_at: '2026-09-03'
+  content: LLMs also override correct retrieved context with their parametric priors, and this is worse
+    when the model's prior token probability is high.
+expected_classification: context_dependent_both
+expected_conflicting_fact_id: f_res_03
+notes: Two directions of the same tug-of-war failure. Both documented, neither cancels the other.  [HARD
+  CASE]
+
+---
+id: ex_029
+existing_facts:
+- id: f_res_04
+  valid_at: '2026-09-03'
+  scope: recall-research
+  content: Opinion-based prompting cut memorization ratio from 35.2% to 3.0% on Natural Questions.
+new_capture:
+  id: c029
+  captured_at: '2026-09-03'
+  content: That result is on text-davinci-003. Direction likely holds on modern models but magnitude will
+    differ; re-benchmark on the deployed model.
+expected_classification: context_dependent_both
+expected_conflicting_fact_id: f_res_04
+notes: The measured result stands as reported; the caveat about generalization is a separate, compatible
+  claim.  [HARD CASE]
+
+---
+id: ex_030
+existing_facts:
+- id: f_rec_08
+  valid_at: '2026-09-05'
+  scope: recall-design
+  content: Retrieval is entity/scope-anchored first, with similarity search supplementing rather than
+    replacing it.
+new_capture:
+  id: c030
+  captured_at: '2026-09-06'
+  content: entity_scope.py is currently a pass-through — no entity extraction, every fact gets entity='unsorted'.
+    Retrieval is effectively running on hybrid TF-IDF alone.
+expected_classification: contradiction
+expected_conflicting_fact_id: f_rec_08
+notes: The design says entity-anchored-first; the implementation does not do this at all. Design intent
+  vs. actual behavior is a real conflict worth flagging, not a scope distinction.  [HARD CASE]
+
+---
+id: ex_031
+existing_facts:
+- id: f_rec_09
+  valid_at: '2026-09-05'
+  scope: recall-design
+  content: blast_radius.py bounds the candidate neighborhood with top-K nearest by embedding plus entity/scope
+    filter.
+new_capture:
+  id: c031
+  captured_at: '2026-09-06'
+  content: blast_radius.py selects candidates by recency, not similarity or entity — embeddings aren't
+    wired yet.
+expected_classification: contradiction
+expected_conflicting_fact_id: f_rec_09
+notes: 'Same pattern as ex_030: documented design vs. shipped shortcut. Should be flagged, not silently
+  reconciled.'
+
+---
+id: ex_032
+existing_facts:
+- id: f_rec_10
+  valid_at: '2026-09-04'
+  scope: recall-strategy
+  content: The OSS path is the strongest use of the idea given no existing audience — reputational asset,
+    portfolio piece, optionality.
+new_capture:
+  id: c032
+  captured_at: '2026-09-05'
+  content: The problem with the OSS framing is the total lack of a moat — if it goes at all well someone
+    with far more money will take the idea and outscale it.
+expected_classification: context_dependent_both
+expected_conflicting_fact_id: f_rec_10
+notes: Both true. OSS is the best path for reputation AND provides no moat. These are compatible facts
+  about different dimensions of the same decision.  [HARD CASE]
+
+---
+id: ex_033
+existing_facts:
+- id: f_rec_11
+  valid_at: '2026-09-05'
+  scope: recall-strategy
+  content: Building this through the company could yield benefits — internal PoC, resources, moat building.
+new_capture:
+  id: c033
+  captured_at: '2026-09-05'
+  content: Rivian is a car company with no channel into the AI/dev-tooling community and no reason to
+    spin out memory infrastructure. Going internal trades a portfolio-legible OSS asset for an invisible
+    internal tool, and surrenders ownership under IP assignment. Keeping it mine.
+expected_classification: update
+expected_conflicting_fact_id: f_rec_11
+notes: The earlier hypothesis is examined and rejected. Clean supersession of a considered-then-discarded
+  option.
+
+---
+id: ex_034
+existing_facts:
+- id: f_con_01
+  valid_at: '2026-08-26'
+  scope: cognitive-architecture
+  content: Consciousness is A↔B coupling above threshold.
+new_capture:
+  id: c034
+  captured_at: '2026-08-26'
+  content: 'The model is dual: a baseline component plus an ignition component.'
+expected_classification: new
+expected_conflicting_fact_id: null
+notes: Elaboration that adds structure without conflicting.
+
+---
+id: ex_035
+existing_facts:
+- id: f_con_02
+  valid_at: '2026-08-26'
+  scope: cognitive-architecture
+  content: The framework locates the hard problem precisely.
+new_capture:
+  id: c035
+  captured_at: '2026-08-26'
+  content: The hard problem is explicitly left unclosed.
+expected_classification: context_dependent_both
+expected_conflicting_fact_id: f_con_02
+notes: Locating a problem and solving it are different. Both true; a weak classifier may read 'precisely
+  located' as implying resolution.  [HARD CASE]
+
+---
+id: ex_036
+existing_facts:
+- id: f_emo_01
+  valid_at: '2026-08-25'
+  scope: cognitive-architecture
+  content: Emotion is a neuromodulatory field-state.
+new_capture:
+  id: c036
+  captured_at: '2026-08-25'
+  content: 'Love, fear, triggered emotion, and PTSD are unified as one mechanism: an evoked structural
+    basin sets field-state, producing emotional state plus attentional capture plus momentary reorientation
+    as one consequence.'
+expected_classification: new
+expected_conflicting_fact_id: null
+notes: Specification of the general claim, no conflict.
+
+---
+id: ex_037
+existing_facts:
+- id: f_evo_01
+  valid_at: '2026-08-26'
+  scope: cognitive-architecture
+  content: C is ancient and conserved, present from the lamprey/insect common ancestor.
+- id: f_evo_02
+  valid_at: '2026-08-26'
+  scope: cognitive-architecture
+  content: B scales dramatically in primates and humans.
+new_capture:
+  id: c037
+  captured_at: '2026-08-26'
+  content: The mushroom body is the insect analog of B.
+expected_classification: contradiction
+expected_conflicting_fact_id: f_evo_02
+notes: If B is present in insects as the mushroom body, then 'B scales dramatically in primates' is compatible,
+  but 'B is the recent, primate-elaborated component' framing is strained. Genuinely ambiguous — scaling
+  and presence are different claims. Correct behavior is to flag rather than auto-resolve.  [HARD CASE]
+
+---
+id: ex_038
+existing_facts:
+- id: f_rec_12
+  valid_at: '2026-09-06'
+  scope: recall-status
+  content: 42 tests pass across Phases 0-5 and 7.
+new_capture:
+  id: c038
+  captured_at: '2026-09-06'
+  content: Phase 2 classifier eval has never actually been run. No accuracy number, no confusion matrix
+    exists.
+expected_classification: context_dependent_both
+expected_conflicting_fact_id: f_rec_12
+notes: Tests passing and the eval not being run are both true and measure different things. Test coverage
+  is not accuracy measurement.  [HARD CASE]
+
+---
+id: ex_039
+existing_facts:
+- id: f_rec_13
+  valid_at: '2026-09-06'
+  scope: recall-status
+  content: README states Phase 0/1 complete, consolidation/retrieval/injection not implemented.
+new_capture:
+  id: c039
+  captured_at: '2026-09-06'
+  content: Consolidation, retrieval, and injection are all implemented and wired into pipeline.py.
+expected_classification: update
+expected_conflicting_fact_id: f_rec_13
+notes: The README is stale. The new fact supersedes the documented state.
+
+---
+id: ex_040
+existing_facts:
+- id: f_rec_14
+  valid_at: '2026-09-03'
+  scope: recall-design
+  content: Consolidation uses batch API and prompt caching for cost efficiency.
+new_capture:
+  id: c040
+  captured_at: '2026-09-06'
+  content: classifier.py uses neither batch API nor prompt caching — flagged as a deliberate v1 shortcut.
+expected_classification: contradiction
+expected_conflicting_fact_id: f_rec_14
+notes: Design specification vs. actual implementation diverge. Same class as ex_030/031.
+
+---
+id: ex_041
+existing_facts:
+- id: f_gen_01
+  valid_at: '2026-08-27'
+  scope: cognitive-architecture
+  content: Everything perceived — objects, agents, emotions, self, god — passes through stacked dimensionality
+    reduction, and we never exit the compressed representation.
+new_capture:
+  id: c041
+  captured_at: '2026-08-10'
+  content: Religion is misapplied agent-modeling machinery.
+expected_classification: new
+expected_conflicting_fact_id: null
+notes: Compatible and mutually supporting, no overlap in specific claim. Note the new capture is OLDER
+  than the existing fact — a classifier keying on recency alone will mishandle this.  [HARD CASE]
+
+---
+id: ex_042
+existing_facts:
+- id: f_seth_01
+  valid_at: '2026-08-23'
+  scope: cognitive-architecture
+  content: Objecthood is an A-embedding property, contra Seth's conditional-prediction account.
+new_capture:
+  id: c042
+  captured_at: '2026-08-23'
+  content: Currently reading Anil Seth's Being You, using it as a theoretical interlocutor.
+expected_classification: new
+expected_conflicting_fact_id: null
+notes: Disagreeing with a book's account and reading that book are unrelated facts.
+
+---
+id: ex_043
+existing_facts:
+- id: f_rec_15
+  valid_at: '2026-09-04'
+  scope: recall-design
+  content: Verification uses MiniCheck-FT5 (770M) for faithfulness checking.
+new_capture:
+  id: c043
+  captured_at: '2026-09-05'
+  content: Start with AlignScore (355M, smaller and faster) if CPU latency on MiniCheck is uncomfortable;
+    upgrade only if accuracy proves insufficient.
+expected_classification: update
+expected_conflicting_fact_id: f_rec_15
+notes: Model choice revised for the no-GPU constraint. Supersession with a stated fallback condition.
+
+---
+id: ex_044
+existing_facts:
+- id: f_rec_16
+  valid_at: '2026-09-01'
+  scope: recall-strategy
+  content: 'The pitch: it won''t rot, gets exponentially better and less autonomous over time.'
+new_capture:
+  id: c044
+  captured_at: '2026-09-02'
+  content: The direction is backwards. More correction data should make the classifier MORE reliable,
+    letting more decisions run autonomously and shrinking the review queue. Starts conservative, gets
+    more autonomous as it earns trust. And 'won't ever rot' should be 'won't rot silently' — degradation
+    is visible and recoverable, never silent.
+expected_classification: contradiction
+expected_conflicting_fact_id: f_rec_16
+notes: The earlier statement is declared directionally wrong, not merely outdated. Retraction of an error
+  rather than aging out of a valid claim.  [HARD CASE]
+
+---
+id: ex_045
+existing_facts:
+- id: f_rec_17
+  valid_at: '2026-09-05'
+  scope: recall-design
+  content: consolidate/run.py does a full index rebuild after every capture.
+new_capture:
+  id: c045
+  captured_at: '2026-09-05'
+  content: Incremental consolidation with --since <commit> is required to avoid O(n²) cost growth as the
+    graph scales.
+expected_classification: context_dependent_both
+expected_conflicting_fact_id: f_rec_17
+notes: Current behavior and required future behavior are both true statements about different times. Not
+  yet a contradiction — the requirement is unmet, not violated.  [HARD CASE]
+
+---
+id: ex_046
+existing_facts:
+- id: f_soc_03
+  valid_at: '2026-08-10'
+  scope: social-cognition
+  content: Mechanistic reasoning about a person can complete without writing to the agent-cache, explaining
+    the phenomenological experience of having 'thought about someone the wrong way'.
+new_capture:
+  id: c046
+  captured_at: '2026-08-10'
+  content: The fast/slow asymmetry in person-cognition reflects cache-reading vs. runtime-construction,
+    not just processing speed.
+expected_classification: new
+expected_conflicting_fact_id: null
+notes: Two facets of the same dual-mode model, complementary rather than overlapping.
+

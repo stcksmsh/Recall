@@ -1,0 +1,16 @@
+# Derived, rebuildable index — never versioned. `recall index build` recreates it from brain/semantic/.
+brain/.brainindex/
+
+# Python
+__pycache__/
+*.pyc
+*.egg-info/
+.venv/
+venv/
+build/
+dist/
+.pytest_cache/
+
+# Local model downloads / eval scratch
+.cache/
+.env

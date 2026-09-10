@@ -1,0 +1,12 @@
+id: example_009
+existing_facts:
+  - id: f9a
+    valid_at: "2025-07-01"
+    content: "Training for a marathon, running about 40 miles a week."
+new_capture:
+  id: c009
+  captured_at: "2026-02-10"
+  content: "Picked up bouldering three times a week and it's become the main hobby."
+expected_classification: update
+expected_conflicting_fact_id: f9a
+notes: "Implicit: no explicit negation of running, but 'the main hobby' quietly implies the marathon training is no longer the primary activity/valid state. Requires inference, not stated negation."

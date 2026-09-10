@@ -1,0 +1,12 @@
+id: example_014
+existing_facts:
+  - id: f14a
+    valid_at: "2025-05-01"
+    content: "Strict budget rule: no new subscription services until the car loan is paid off."
+new_capture:
+  id: c014
+  captured_at: "2025-05-20"
+  content: "Signed up for three new streaming subscriptions this week to catch up on shows."
+expected_classification: contradiction
+expected_conflicting_fact_id: f14a
+notes: "Implicit: no explicit mention of the budget rule being dropped or the loan being paid off; the action just quietly violates the stated standing rule. Requires inference that this isn't an approved exception."

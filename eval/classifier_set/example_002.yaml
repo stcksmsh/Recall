@@ -1,0 +1,12 @@
+id: example_002
+existing_facts:
+  - id: f2a
+    valid_at: "2025-06-01"
+    content: "Primary work laptop is a Dell XPS 15."
+new_capture:
+  id: c002
+  captured_at: "2025-09-20"
+  content: "Adopted a cat named Biscuit from the local shelter."
+expected_classification: new
+expected_conflicting_fact_id: null
+notes: "Unrelated topic (pets vs. work hardware); no overlap with the existing fact. Explicit/trivial case."

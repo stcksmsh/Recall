@@ -1,0 +1,12 @@
+id: example_000_template
+existing_facts:
+  - id: f1
+    valid_at: "2026-01-01"
+    content: "User's primary language at work is Java."
+new_capture:
+  id: c1
+  captured_at: "2026-08-01"
+  content: "User's primary language at work is now Kotlin."
+expected_classification: update
+expected_conflicting_fact_id: f1
+notes: "Format reference only, not a real eval example — run_eval.py skips files starting with _."

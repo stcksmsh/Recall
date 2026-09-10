@@ -1,0 +1,12 @@
+id: example_018
+existing_facts:
+  - id: f18a
+    valid_at: "2025-02-14"
+    content: "Strict vegetarian at home, cooks only plant-based meals."
+new_capture:
+  id: c018
+  captured_at: "2025-12-05"
+  content: "Ate sushi with salmon at a work dinner with clients."
+expected_classification: context_dependent_both
+expected_conflicting_fact_id: f18a
+notes: "Distinguishable from example_012's contradiction: here the new capture is explicitly scoped to a specific work-social context ('work dinner with clients'), suggesting a deliberate exception rather than an abandoned diet — both can hold as scoped facts (home diet vs. work social occasion)."

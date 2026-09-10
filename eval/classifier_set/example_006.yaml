@@ -1,0 +1,12 @@
+id: example_006
+existing_facts:
+  - id: f6a
+    valid_at: "2025-02-01"
+    content: "Primary language used at work is Java."
+new_capture:
+  id: c006
+  captured_at: "2025-09-14"
+  content: "Switched to using Kotlin instead of Java for the main work project."
+expected_classification: update
+expected_conflicting_fact_id: f6a
+notes: "Explicit supersession ('switched to ... instead of'); old fact becomes historically-valid-until-2025-09-14."

@@ -1,0 +1,12 @@
+id: example_019
+existing_facts:
+  - id: f19a
+    valid_at: "2025-01-20"
+    content: "Introverted in large social settings, prefers to leave parties early."
+new_capture:
+  id: c019
+  captured_at: "2025-06-30"
+  content: "Was the most talkative person at a small dinner with three close friends, stayed until 1am."
+expected_classification: context_dependent_both
+expected_conflicting_fact_id: f19a
+notes: "Both traits hold, scoped to social context size/familiarity (large unfamiliar groups vs. small close-friend gatherings) rather than a personality contradiction."

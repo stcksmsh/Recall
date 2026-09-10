@@ -1,0 +1,12 @@
+id: example_004
+existing_facts:
+  - id: f4a
+    valid_at: "2025-04-15"
+    content: "Lives in Austin, Texas."
+new_capture:
+  id: c004
+  captured_at: "2025-08-30"
+  content: "Started volunteering at a local animal shelter twice a month."
+expected_classification: new
+expected_conflicting_fact_id: null
+notes: "New activity unrelated to location fact. Explicit/trivial case."

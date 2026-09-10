@@ -1,0 +1,12 @@
+id: example_016
+existing_facts:
+  - id: f16a
+    valid_at: "2025-06-01"
+    content: "Prefers Python for work projects on the data team."
+new_capture:
+  id: c016
+  captured_at: "2025-10-12"
+  content: "Uses TypeScript for a personal side project building a web app."
+expected_classification: context_dependent_both
+expected_conflicting_fact_id: f16a
+notes: "Both language preferences hold simultaneously, scoped to different contexts (work vs. personal side project) — not a conflict, a scope split."

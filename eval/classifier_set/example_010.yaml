@@ -1,0 +1,12 @@
+id: example_010
+existing_facts:
+  - id: f10a
+    valid_at: "2025-03-01"
+    content: "Team stand-up is at 9:30am daily, and mornings are blocked for deep work before that."
+new_capture:
+  id: c010
+  captured_at: "2026-04-05"
+  content: "Been going to the gym every morning at 8am before heading into the office."
+expected_classification: update
+expected_conflicting_fact_id: f10a
+notes: "Implicit: new morning gym routine quietly conflicts with the old 'mornings blocked for deep work' framing without saying so directly. Requires inferring the old schedule assumption no longer holds."

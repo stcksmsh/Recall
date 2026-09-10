@@ -1,0 +1,12 @@
+id: example_011
+existing_facts:
+  - id: f11a
+    valid_at: "2026-01-15"
+    content: "Allergic to penicillin — confirmed by an allergist."
+new_capture:
+  id: c011
+  captured_at: "2026-01-15"
+  content: "Not allergic to any medications, per a note from the same day."
+expected_classification: contradiction
+expected_conflicting_fact_id: f11a
+notes: "Same-day, mutually exclusive medical claims with no valid shared context or time-ordering to reconcile them. Explicit contradiction."
