@@ -333,7 +333,7 @@
     "recall-status-cmd": {
       "title": "Implement 'recall status' (BUILD_PLAN Phase 8)",
       "plan": "recall-v1",
-      "status": "pending",
+      "status": "cancelled",
       "dependencies": [],
       "scope": [
         "src/cli.py",
@@ -453,7 +453,7 @@
     "start-daily-usage": {
       "title": "Begin real daily usage of recall on actual notes/work",
       "plan": "recall-v1",
-      "status": "pending",
+      "status": "blocked",
       "dependencies": [],
       "scope": [
         "brain/"
@@ -467,7 +467,7 @@
       ],
       "verify": [],
       "worker": null,
-      "blocker": null,
+      "blocker": "Owner-driven: requires the user to actually capture real notes over multiple days and run a real consolidate. An agent cannot fabricate this without violating decision 0007 (captures are real, append-only, not manufactured to look good).",
       "result": null,
       "evidence": null
     },
@@ -528,7 +528,7 @@
     "wire-phase7-correction-log": {
       "title": "Confirm Phase 7 correction log accumulates from real review actions",
       "plan": "recall-v1",
-      "status": "pending",
+      "status": "done",
       "dependencies": [],
       "scope": [
         "src/",
@@ -551,8 +551,34 @@
       ],
       "worker": null,
       "blocker": null,
-      "result": null,
-      "evidence": null
+      "result": "Correction log confirmed wired (review._resolve -> record_correction unconditionally for accept+override); gap was test coverage only. Added tests/test_cli_correction_loop.py exercising the real CLI and asserting all 4 labelled fields (facts_in, classification_given, confidence_given, correct_classification) on disk. 57 tests pass.",
+      "evidence": {
+        "source_hash": "058c2144e3e8a893ce174a636f7a68cc251edf41984df5b166effa07edbfaa48",
+        "contract_hash": "623a97105669fc408c7ac0dfc5ba18be244f9f13412b2651d2a4decf76d7834e",
+        "success": true,
+        "runs": [
+          {
+            "schema_version": 1,
+            "id": "run-COG23N",
+            "argv": [
+              ".venv/bin/pytest",
+              "-q"
+            ],
+            "exit_code": 0,
+            "success": true,
+            "timed_out": false,
+            "duration_ms": 1408,
+            "stdout": ".ai/runtime/runs/run-COG23N/stdout.log",
+            "stderr": ".ai/runtime/runs/run-COG23N/stderr.log",
+            "diagnostics": [],
+            "tail": [
+              ".........................................................                [100%]",
+              "57 passed in 1.10s"
+            ],
+            "omitted": 0
+          }
+        ]
+      }
     }
   },
   "active_plan": "recall-v1",
