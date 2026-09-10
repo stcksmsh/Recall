@@ -14,3 +14,6 @@ dist/
 # Local model downloads / eval scratch
 .cache/
 .env
+
+# Eval run outputs
+eval/results_*.json

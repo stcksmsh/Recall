@@ -13,7 +13,16 @@ from enum import Enum
 
 from src.consolidate.classifier import ClassificationResult
 
-DEFAULT_CONFIDENCE_THRESHOLD = 0.75
+# Phase 2 eval (eval/PHASE2_FINDINGS.md, 46 real cases, claude-sonnet-5): raised from 0.75.
+# At 0.75, three "expected=contradiction, predicted=update, high confidence" cases auto-applied
+# — i.e. silently corrupted the semantic tier, the exact failure this project exists to prevent.
+# 0.90 is the highest usable value: wrong gated auto-applies drop to their floor (1 of 46) while
+# 6 correct ones still clear the gate; at 0.95 nothing clears it and the gate just means
+# "auto-apply off". The remaining error (ex_044, 0.93-confident contradiction→update) is NOT
+# catchable by any usable threshold — the classifier's confidence signal does not separate that
+# class of mistake. The real backstops are a prompt revision targeting the
+# "retracted-as-error vs. aged-out" boundary and Phase 6 verification, not this number.
+DEFAULT_CONFIDENCE_THRESHOLD = 0.90
 
 
 class Action(str, Enum):
