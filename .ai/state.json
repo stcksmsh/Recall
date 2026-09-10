@@ -448,7 +448,7 @@
     "stop-synthetic-eval": {
       "title": "Decision: freeze hand-authored/synthetic eval-case creation",
       "plan": "recall-v1",
-      "status": "pending",
+      "status": "done",
       "dependencies": [],
       "scope": [
         ".ai/decisions/"
@@ -460,11 +460,44 @@
       "constraints": [
         "Decision-only: no code or eval-data changes"
       ],
-      "verify": [],
+      "verify": [
+        {
+          "argv": [
+            "bash",
+            "-lc",
+            "test -f .ai/decisions/0008-freeze-synthetic-eval-cases.md"
+          ],
+          "timeout_seconds": 30
+        }
+      ],
       "worker": null,
       "blocker": null,
-      "result": null,
-      "evidence": null
+      "result": "Decision 0008 recorded: eval sets frozen at 76/28 for v1; only real-usage cases + regeneration allowed; rationale = diminishing returns (58.7-60.9% across all runs) + overfitting risk + real signal now from Phase 7 log",
+      "evidence": {
+        "source_hash": "2dcd41532b0cc6fc715abc387fba1fcd8577f6a17a6a13e2033869f38bc46a37",
+        "contract_hash": "3af1cd3daa67af4003020731ab16d0f4e175e365b0771ae8507f3ecaf3f3de32",
+        "success": true,
+        "runs": [
+          {
+            "schema_version": 1,
+            "id": "run-Co3PPa",
+            "argv": [
+              "bash",
+              "-lc",
+              "test -f .ai/decisions/0008-freeze-synthetic-eval-cases.md"
+            ],
+            "exit_code": 0,
+            "success": true,
+            "timed_out": false,
+            "duration_ms": 81,
+            "stdout": ".ai/runtime/runs/run-Co3PPa/stdout.log",
+            "stderr": ".ai/runtime/runs/run-Co3PPa/stderr.log",
+            "diagnostics": [],
+            "tail": [],
+            "omitted": 0
+          }
+        ]
+      }
     },
     "wire-phase7-correction-log": {
       "title": "Confirm Phase 7 correction log accumulates from real review actions",
