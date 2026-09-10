@@ -3,6 +3,12 @@
 Per ARCHITECTURE.md §2: this module emits a classification + confidence + reasoning. It never
 applies any consequence itself — that's executor.py's job, deterministically, once this is wired
 into the pipeline in Phase 3. Right now this is exercised in isolation via eval/run_eval.py.
+
+Phase 2 follow-up: a prompt revision adding a `prior_fact_was_valid_when_recorded` field to
+force the "retracted-as-error vs. aged-out" distinction was tried in three variants and every
+one was a net regression on the 46-case real set (see eval/PHASE2_FOLLOWUP_FINDINGS.md). The
+prompt below is the Phase 2 baseline, unchanged. `parse_response` is split out so the model
+comparison in run_eval.py can reuse the exact same parsing for local models.
 """
 
 from __future__ import annotations
@@ -98,12 +104,24 @@ def classify(
     text_blocks = [block.text for block in response.content if block.type == "text"]
     if not text_blocks:
         raise ValueError(f"Classifier response had no text block: {response.content!r}")
-    raw_text = text_blocks[0].strip()
+    return parse_response(text_blocks[0])
+
+
+def parse_response(raw_text: str) -> ClassificationResult:
+    """Parse a model's raw text into a ClassificationResult.
+
+    Shared by the hosted-API path and by eval/run_eval.py's local-model path — anything that can
+    produce the JSON contract in PROMPT_TEMPLATE can reuse this.
+    """
+    raw_text = raw_text.strip()
     if raw_text.startswith("```"):
         raw_text = raw_text.strip("`")
         if raw_text.startswith("json"):
             raw_text = raw_text[len("json"):]
         raw_text = raw_text.strip()
+    # Local models often wrap the JSON in prose; take the outermost {...}.
+    if not raw_text.startswith("{") and "{" in raw_text and "}" in raw_text:
+        raw_text = raw_text[raw_text.index("{"): raw_text.rindex("}") + 1]
 
     try:
         parsed = json.loads(raw_text)

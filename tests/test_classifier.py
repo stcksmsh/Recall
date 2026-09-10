@@ -2,7 +2,9 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from src.consolidate.classifier import Capture, ExistingFact, _build_prompt, classify
+from src.consolidate.classifier import (
+    Capture, ExistingFact, _build_prompt, classify, parse_response,
+)
 
 
 def test_build_prompt_includes_capture_and_facts():
@@ -60,3 +62,21 @@ def test_classify_parses_plain_json():
 
     assert result.classification == "update"
     assert result.conflicting_fact_id == "f1"
+
+
+def test_parse_response_extracts_json_wrapped_in_prose():
+    # Local models often emit a sentence before/after the JSON object.
+    raw = ('Here is my analysis:\n'
+           '{"classification": "contradiction", "confidence": 0.7, "reasoning": "conflict", '
+           '"conflicting_fact_id": "f2"}\n'
+           'Let me know if you need more detail.')
+
+    result = parse_response(raw)
+
+    assert result.classification == "contradiction"
+    assert result.conflicting_fact_id == "f2"
+
+
+def test_parse_response_rejects_unknown_classification():
+    with pytest.raises(ValueError, match="invalid classification"):
+        parse_response('{"classification": "maybe", "confidence": 0.5}')
