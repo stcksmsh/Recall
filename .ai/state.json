@@ -58,6 +58,63 @@
       "result": null,
       "evidence": null
     },
+    "combined-corruption-rate": {
+      "title": "End-to-end silent-corruption rate: classifier gate + verifier together",
+      "plan": "recall-v1",
+      "status": "done",
+      "dependencies": [],
+      "scope": [
+        "eval/",
+        "src/verify/"
+      ],
+      "acceptance": [
+        "A committed report (eval/COMBINED_CORRUPTION.md or similar) states, across all 76 real cases, how many true SEV1 retraction cases pass BOTH the confidence gate and the deterministic verifier undetected",
+        "Method is reproducible: a script under eval/ regenerates the number",
+        "Full test suite still green"
+      ],
+      "constraints": [
+        "Measurement task: no behavior changes to classifier or verifier"
+      ],
+      "verify": [
+        {
+          "argv": [
+            ".venv/bin/pytest",
+            "-q"
+          ],
+          "timeout_seconds": 600
+        }
+      ],
+      "worker": null,
+      "blocker": null,
+      "result": "0/76 SEV1 cases leak through both shipped layers; eval/COMBINED_CORRUPTION.md + eval/run_combined.py committed; caveats documented (gate luck, verifier circularity, 1 missed WRITE_NEW correction)",
+      "evidence": {
+        "source_hash": "d51c3937c7d36be25f3ac8d8453f4cd324442377e6ceb4d624fd942fd425f613",
+        "contract_hash": "3227ac33de857531127bafad9b3cbdf8202f98dbaed65cd248d4a85bca191f17",
+        "success": true,
+        "runs": [
+          {
+            "schema_version": 1,
+            "id": "run-sdGSaa",
+            "argv": [
+              ".venv/bin/pytest",
+              "-q"
+            ],
+            "exit_code": 0,
+            "success": true,
+            "timed_out": false,
+            "duration_ms": 1307,
+            "stdout": ".ai/runtime/runs/run-sdGSaa/stdout.log",
+            "stderr": ".ai/runtime/runs/run-sdGSaa/stderr.log",
+            "diagnostics": [],
+            "tail": [
+              ".....................................................                    [100%]",
+              "53 passed in 1.02s"
+            ],
+            "omitted": 0
+          }
+        ]
+      }
+    },
     "dogfood-consolidation": {
       "title": "Dogfood: run consolidation on Recall's own build history",
       "plan": "recall-v1",
@@ -80,6 +137,38 @@
         "Uses the real classifier (measured), not a mock; cost is small but real",
         "Captures are append-only; do not rewrite history to make consolidation look good"
       ],
+      "verify": [
+        {
+          "argv": [
+            ".venv/bin/pytest",
+            "-q"
+          ],
+          "timeout_seconds": 600
+        }
+      ],
+      "worker": null,
+      "blocker": null,
+      "result": null,
+      "evidence": null
+    },
+    "phase8-polish": {
+      "title": "Phase 8 CLI polish: recall status + review-queue UX",
+      "plan": "recall-v1",
+      "status": "pending",
+      "dependencies": [
+        "retraction-limitation-doc"
+      ],
+      "scope": [
+        "src/",
+        "tests/"
+      ],
+      "acceptance": [
+        "recall status prints pending review-queue count, recent consolidation activity, and last-index-build info; exits 0",
+        "review-queue interaction (list/accept/override) has consistent, readable output",
+        "recall status limitation note references retraction-limitation-doc",
+        "New tests cover recall status; full suite green"
+      ],
+      "constraints": [],
       "verify": [
         {
           "argv": [
@@ -243,6 +332,136 @@
             "-q"
           ],
           "timeout_seconds": 300
+        }
+      ],
+      "worker": null,
+      "blocker": null,
+      "result": null,
+      "evidence": null
+    },
+    "retraction-classifier-revisit": {
+      "title": "Revisit a purpose-built retraction classifier once real corrections exist",
+      "plan": "recall-v1",
+      "status": "pending",
+      "dependencies": [
+        "start-daily-usage",
+        "wire-phase7-correction-log"
+      ],
+      "scope": [
+        "src/verify/",
+        "eval/"
+      ],
+      "acceptance": [
+        "Only startable once the correction log holds a meaningful number of real retraction-labelled examples",
+        "Either a trained/prompt-specialized retraction check that beats the current deterministic verifier on held-out real data, or a recorded decision that it still is not worth it"
+      ],
+      "constraints": [
+        "Do not start before real correction data exists (the whole point)"
+      ],
+      "verify": [],
+      "worker": null,
+      "blocker": null,
+      "result": null,
+      "evidence": null
+    },
+    "retraction-limitation-doc": {
+      "title": "Document the retraction blind spot (no first-person lexical signal = not caught)",
+      "plan": "recall-v1",
+      "status": "pending",
+      "dependencies": [
+        "combined-corruption-rate"
+      ],
+      "scope": [
+        "LIMITATIONS.md",
+        "README.md",
+        "ARCHITECTURE.md"
+      ],
+      "acceptance": [
+        "A LIMITATIONS.md (or ARCHITECTURE.md section) states plainly that the shipped verifier only catches retractions with first-person lexical cues, and cites the combined-corruption-rate number",
+        "README links to it from the Phase 6 status line",
+        "Full test suite still green"
+      ],
+      "constraints": [
+        "Docs task: no changes under src/ or tests/"
+      ],
+      "verify": [
+        {
+          "argv": [
+            ".venv/bin/pytest",
+            "-q"
+          ],
+          "timeout_seconds": 600
+        }
+      ],
+      "worker": null,
+      "blocker": null,
+      "result": null,
+      "evidence": null
+    },
+    "start-daily-usage": {
+      "title": "Begin real daily usage of recall on actual notes/work",
+      "plan": "recall-v1",
+      "status": "pending",
+      "dependencies": [],
+      "scope": [
+        "brain/"
+      ],
+      "acceptance": [
+        "brain/episodic/ contains real (non-eval, non-dogfood-of-build) captures from actual note-taking over multiple days",
+        "at least one real consolidate run has been executed on that corpus"
+      ],
+      "constraints": [
+        "Owner-driven: requires the user to actually use the tool; agent cannot fabricate this"
+      ],
+      "verify": [],
+      "worker": null,
+      "blocker": null,
+      "result": null,
+      "evidence": null
+    },
+    "stop-synthetic-eval": {
+      "title": "Decision: freeze hand-authored/synthetic eval-case creation",
+      "plan": "recall-v1",
+      "status": "pending",
+      "dependencies": [],
+      "scope": [
+        ".ai/decisions/"
+      ],
+      "acceptance": [
+        "A .ai/decisions/ entry records: stop adding synthetic/hand-authored eval cases (diminishing returns + overfitting risk); future eval signal comes from real usage corrections",
+        "recall capture --source stop-synthetic-eval records the rationale"
+      ],
+      "constraints": [
+        "Decision-only: no code or eval-data changes"
+      ],
+      "verify": [],
+      "worker": null,
+      "blocker": null,
+      "result": null,
+      "evidence": null
+    },
+    "wire-phase7-correction-log": {
+      "title": "Confirm Phase 7 correction log accumulates from real review actions",
+      "plan": "recall-v1",
+      "status": "pending",
+      "dependencies": [],
+      "scope": [
+        "src/",
+        "tests/"
+      ],
+      "acceptance": [
+        "A test or documented manual trace shows: running recall review accept/override on a real queue item appends a labelled example (facts_in, classification_given, confidence_given, correct_classification) to the correction log on disk",
+        "If it is only built and not wired, the gap is fixed; if already wired, the confirming test is added",
+        "Full test suite green"
+      ],
+      "constraints": [],
+      "verify": [
+        {
+          "argv": [
+            ".venv/bin/pytest",
+            "-q"
+          ],
+          "timeout_seconds": 600
         }
       ],
       "worker": null,
