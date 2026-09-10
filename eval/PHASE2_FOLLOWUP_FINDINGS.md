@@ -1,13 +1,19 @@
-# Phase 2 follow-up — prompt fix attempt (part 1)
+# Phase 2 follow-up — prompt fix attempt + cheaper-model comparison
 
 Companion to `PHASE2_FINDINGS.md`. Same harness (`eval/run_eval.py`), same 46-case real set
 (`eval/classifier_set/real_examples.yaml`), same 22 `[HARD CASE]` markers. All runs are one real
 inference call per example — no mock.
 
-**Bottom line up front:** the prompt fix, in three variants, is a **net regression** on this
-set. It is **not shipped** — `classifier.py` keeps the Phase 2 baseline prompt; only the
-`parse_response` refactor is kept. (A cheaper-model comparison — Haiku 4.5, a local CPU 7B —
-follows in a later commit, section 2.)
+Two things were tried here:
+
+1. Revise the classifier prompt to fix the dominant Phase 2 error (update ↔ contradiction).
+2. Run the eval against cheaper models (Claude Haiku 4.5, a local CPU 7B).
+
+**Bottom line up front:**
+- The prompt fix, in three variants, is a **net regression** on this set. It is **not shipped**;
+  `classifier.py` keeps the Phase 2 baseline prompt. Only the `parse_response` refactor is kept.
+- Haiku 4.5 and the local 7B are **both materially worse** than Sonnet 5, with a **higher, more
+  confident silent-corruption rate**. No model switch is recommended.
 
 ---
 
@@ -78,7 +84,102 @@ not support any prompt-level fix, and every variant traded the target error for 
 damage across the other three classes. The real backstop remains Phase 6 verification (as
 `PHASE2_FINDINGS.md` already concluded); the confidence gate stays at 0.90.
 
-Kept from this pass: `classifier.parse_response()` split out of `classify()` so that other
-callers (e.g. the model comparison in section 2) can feed raw model output through the identical
-parser.
+Kept from this pass: `classifier.parse_response()` split out of `classify()` so the model
+comparison below can feed local-model output through the identical parser.
 
+---
+
+## 2. Cheaper / local models — same baseline prompt, same 46 cases
+
+### Claude Haiku 4.5 (`claude-haiku-4-5-20251001`), via API
+
+Overall **20/46 = 43.5%**, hard 15/22 = 68.2%, easy 5/24 = 20.8%. Per-call latency ~3.4s.
+
+```
+                          new  update  contra  both  tot
+new                        0      0       0      8    8
+update                     0      5       8      3   16
+contradiction              0      2       4      2    8
+context_dependent_both     0      1       2     11   14
+```
+
+- **`new` is completely broken** — 0/8, all 8 → `context_dependent_both`. Haiku always finds a way
+  two facts "operate at different levels of analysis."
+- **SEV1 = 4**, all at **0.92–0.95 confidence** (ex_044 @ 0.95, ex_003 @ 0.92, ex_040 @ 0.92,
+  +1). Higher and more confident than Sonnet's silent-corruption rate.
+- Not the Graphiti "fails to attempt reasoning" collapse — Haiku reasons *verbosely* (200-word
+  justifications). The failure is that it pattern-matches toward "both can be true" / "this is an
+  update" instead of engaging with whether the store's owner would call it a genuine conflict.
+- Only ex_023 of the four costly cases is fixed.
+
+### Local — Qwen2.5-7B-Instruct, Q4_K_M GGUF, llama.cpp CPU
+
+Hardware: 20-thread Intel, no GPU, 30 GB RAM (the target laptop). Model file 4.68 GB.
+`n_ctx=4096`, `temperature=0`, `response_format=json_object`. Chosen as the pragmatic 7-8B
+CPU option: single-file GGUF, strong instruction-following / JSON adherence, well-supported by
+llama-cpp-python. `pip install llama-cpp-python` (CPU wheel) + `hf download`.
+
+Overall **13/46 = 28.3%**, hard 4/22 = 18.2%, easy 9/24 = 37.5%.
+**Per-call latency: min 11.2s / median 15.0s / max 18.6s** (689s wall for 46). ~40× slower per
+call than the APIs, on top of being the least accurate.
+
+```
+                          new  update  contra  both  tot
+new                        1      1       1      5    8
+update                     0     10       6      0   16
+contradiction              0      7       0      1    8
+context_dependent_both     0      9       3      2   14
+```
+
+- **Valid JSON on all 46** — no parse failures. It follows the output contract.
+- **It does attempt reasoning** — every response has a 1-2 sentence justification. This is *not*
+  the "doesn't try" collapse. It is the *other* Graphiti failure mode: shallow, pattern-matched
+  reasoning. Several justifications contradict their own label — ex_040: _"directly contradicts
+  the existing fact … suggests the existing fact is no longer accurate"_ → predicts **update**.
+- **`contradiction` recall is 0/8.** Every real contradiction was called `update` (7) or `both`
+  (1). Contradiction detection is the one thing protecting the semantic tier, and this model
+  cannot do it at all.
+- **No confidence signal**: 40 of 46 predictions are exactly 0.90, one is 1.00, the rest 0.80.
+  The gate cannot function — at 0.90 all 8 SEV1 errors still auto-apply.
+- **SEV1 = 8** (worst of the three models by far).
+- Costly cases: **0/4** fixed.
+
+---
+
+## Comparison table
+
+| model | ~cost / call² | latency / call | full-set acc | hard-subset acc | costly-4³ | SEV1 |
+|---|---|---|---|---|---|---|
+| **Sonnet 5** (baseline) | ~$0.004 | ~2.9 s | **58.7%** | 50.0% | 0/4 | 3–4 |
+| Haiku 4.5 | ~$0.0009 | ~3.4 s | 43.5% | 68.2%⁴ | 1/4 | 4 |
+| Qwen2.5-7B Q4 (local, CPU) | $0 + ~15 s CPU | ~15 s | 28.3% | 18.2% | 0/4 | 8 |
+
+² rough: ~700 in + ~150 out tokens. Sonnet 5 $3/$15 per Mtok → ~$0.004. Haiku 4.5 $1/$5 →
+~$0.0009. Batch API would halve both; not applied here. At a realistic few-hundred
+consolidations/month this is the difference between ~$1 and ~$0.25 a month — not decision-relevant.
+
+³ how many of ex_003 / ex_023 / ex_040 / ex_044 (the Phase 2 silent-corruption cases) were
+classified correctly.
+
+⁴ Haiku's and Qwen's hard-subset numbers are a distribution artefact, not a capability: the hard
+subset is 14/22 `context_dependent_both`, and both cheaper models are heavily biased toward a
+non-`update`, non-`new` label. Haiku happens to land on `both`; on the easy subset (more `new`
+and `update`) it scores 20.8%.
+
+### Recommendation
+
+**Stay on Sonnet 5. No model switch.**
+
+- **Haiku 4.5**: ~4× cheaper, but −15 points full-set accuracy, **cannot classify `new` at all**
+  (0/8), and produces *more* silent-corruption errors *at higher confidence* (0.92–0.95). That is
+  precisely the trade `PHASE2_FINDINGS.md` said not to make, because the confidence gate is not a
+  reliable backstop. The ~$0.75/month saved is not worth it.
+- **Qwen2.5-7B local**: free in dollars, but 28% accuracy, 0/8 contradiction recall, no usable
+  confidence signal, and 15 s/call on the target hardware. This is the research-predicted
+  collapse for a weak model on write-time conflict classification. Confirms `BUILD_PLAN.md` §3's
+  "no local classifier" call with local data. Keep it as a documented negative result, not a
+  fallback.
+
+Sonnet 5 at 58.7% / SEV1 3–4 is itself not good — but it is the best available, and the fix for
+its residual silent-corruption risk is Phase 6 verification, not a cheaper model and not a prompt
+tweak.
