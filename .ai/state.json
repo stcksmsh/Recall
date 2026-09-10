@@ -134,7 +134,7 @@
     "readme-accuracy": {
       "title": "README reflects the actually-implemented system state",
       "plan": "recall-v1",
-      "status": "pending",
+      "status": "done",
       "dependencies": [],
       "scope": [
         "README.md"
@@ -168,8 +168,52 @@
       ],
       "worker": null,
       "blocker": null,
-      "result": null,
-      "evidence": null
+      "result": "README Status now covers Phases 0-7 + Phase 2 follow-up + Phase 6 partial; Usage documents every recall --help command; 53 pytest pass; grep check clean",
+      "evidence": {
+        "source_hash": "f070ae5cd11c34a8cc4d727e37fadcdf6f7038ddbcd77d2cf9170880debbd0c7",
+        "contract_hash": "5df60742c909a596a906e99a59436c3f80717f87fbe2707ecfccdd212aea999b",
+        "success": true,
+        "runs": [
+          {
+            "schema_version": 1,
+            "id": "run-d1jLjC",
+            "argv": [
+              ".venv/bin/pytest",
+              "-q"
+            ],
+            "exit_code": 0,
+            "success": true,
+            "timed_out": false,
+            "duration_ms": 1286,
+            "stdout": ".ai/runtime/runs/run-d1jLjC/stdout.log",
+            "stderr": ".ai/runtime/runs/run-d1jLjC/stderr.log",
+            "diagnostics": [],
+            "tail": [
+              ".....................................................                    [100%]",
+              "53 passed in 1.01s"
+            ],
+            "omitted": 0
+          },
+          {
+            "schema_version": 1,
+            "id": "run-ybPlcW",
+            "argv": [
+              "bash",
+              "-lc",
+              "! grep -nE \"not implemented yet|Phase 0/1|are not implemented\" README.md"
+            ],
+            "exit_code": 0,
+            "success": true,
+            "timed_out": false,
+            "duration_ms": 61,
+            "stdout": ".ai/runtime/runs/run-ybPlcW/stdout.log",
+            "stderr": ".ai/runtime/runs/run-ybPlcW/stderr.log",
+            "diagnostics": [],
+            "tail": [],
+            "omitted": 0
+          }
+        ]
+      }
     },
     "recall-status-cmd": {
       "title": "Implement 'recall status' (BUILD_PLAN Phase 8)",

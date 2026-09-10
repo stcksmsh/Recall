@@ -24,14 +24,46 @@ choices, and phased build scope.
 
 ## Status
 
-Early build. Phase 0/1 per `BUILD_PLAN.md` §6: episodic capture and the index round-trip.
-Consolidation, retrieval, injection, and verification are not implemented yet.
+Phases 0–7 of `BUILD_PLAN.md` §6 are implemented, plus the Phase 2 follow-up. Phase 6 is partial.
+
+- **Phase 0–1 — episodic + index round-trip.** `recall capture` and `recall index build` work; the
+  rebuild guarantee (`rm -rf brain/.brainindex && recall index build` → equivalent index) is
+  verified by the test suite.
+- **Phase 2 (+ follow-up) — classifier eval loop.** Run in isolation against a hand-labelled
+  76-case real corpus. Measured accuracy 60.5%, below the 65.3% general ceiling; a prompt fix and a
+  cheaper model were both tried and neither beat baseline (`eval/PHASE2_*_FINDINGS.md`). This is why
+  the default auto-apply confidence threshold is a conservative 0.9.
+- **Phase 3 — consolidation loop.** The classifier proposes; a deterministic executor is the only
+  thing that writes the semantic tier. Sub-threshold decisions go to a review queue.
+- **Phase 4 — retrieval.** Entity/scope-anchored retrieval, hybrid BM25 + vector fusion, 1–2 hop
+  graph expansion, and a sufficiency gate. No model calls on this path.
+- **Phase 5 — injection + provenance.** Retrieval output formatted into XML-tagged, authority-framed
+  fact blocks, each stamped with the commit hash it was derived from.
+- **Phase 6 — verification (partial).** The deterministic lexical retraction check is shipped and
+  wired into `consolidate run`: a flagged decision is downgraded to review, never auto-corrected.
+  The NLI stage was built and evaluated but **not shipped** — see `eval/PHASE6_FINDINGS.md`.
+- **Phase 7 — correction data loop.** Every review accept/override is logged as a labelled example
+  (`facts_in`, `classification_given`, `confidence_given`, `correct_classification`).
+
+Not yet built: Phase 8 CLI polish, including a working `recall status`.
 
 ## Usage
 
 ```
-recall capture "<text>"        # write an episodic capture — instant, no model calls
-recall index build             # rebuild the semantic index from brain/
+recall capture "<text>"              # write an episodic capture — instant, no model/network calls
+recall capture --file NOTES.md       # ...or capture from a file (omit the arg entirely to read stdin)
+recall index build                   # rebuild the SQLite index from brain/episodic/ + brain/semantic/
+recall consolidate run               # classify not-yet-consolidated captures; auto-apply above
+                                     #   --confidence-threshold (default 0.9), else queue for review.
+                                     #   one classifier API call per capture; --verify (default on)
+                                     #   runs the lexical retraction check.
+recall review list                   # list pending review-queue items
+recall review accept <id>            # confirm the classifier's call and apply its action
+recall review override <id> <class>  # apply the correct classification instead
+                                     #   (new|update|contradiction|context_dependent_both)
+recall retrieve "<query>"            # read path: format stored facts for a query, no model calls
+                                     #   --entity / --scope to filter
+recall status                        # Phase 8, not built yet
 ```
 
-Run `recall --help` for the full (mostly stubbed) command list.
+Run `recall --help` for the command list.
