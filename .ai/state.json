@@ -154,7 +154,7 @@
     "phase8-polish": {
       "title": "Phase 8 CLI polish: recall status + review-queue UX",
       "plan": "recall-v1",
-      "status": "pending",
+      "status": "done",
       "dependencies": [
         "retraction-limitation-doc"
       ],
@@ -180,8 +180,34 @@
       ],
       "worker": null,
       "blocker": null,
-      "result": null,
-      "evidence": null
+      "result": "recall status implemented (src/status.py: index-rebuild snapshot of capture/fact/review/correction counts + retraction caveat); review list shows conflicting fact + resolution hints; +2 tests (55 pass); README Phase 8 line updated",
+      "evidence": {
+        "source_hash": "bc2c7158b54dcfbade076120bf78f97451041d94da9bb2fcb798688554ad6751",
+        "contract_hash": "80199c08a5631389dab5d513b6fbadf069a32b283f2f8ac67cbb5bc790b983fe",
+        "success": true,
+        "runs": [
+          {
+            "schema_version": 1,
+            "id": "run-pRvgNY",
+            "argv": [
+              ".venv/bin/pytest",
+              "-q"
+            ],
+            "exit_code": 0,
+            "success": true,
+            "timed_out": false,
+            "duration_ms": 1328,
+            "stdout": ".ai/runtime/runs/run-pRvgNY/stdout.log",
+            "stderr": ".ai/runtime/runs/run-pRvgNY/stderr.log",
+            "diagnostics": [],
+            "tail": [
+              ".......................................................                  [100%]",
+              "55 passed in 1.03s"
+            ],
+            "omitted": 0
+          }
+        ]
+      }
     },
     "provider-portability": {
       "title": "Make the write-path classifier provider-swappable",

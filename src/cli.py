@@ -96,10 +96,21 @@ def review_list():
     if not items:
         typer.echo("Review queue is empty.")
         return
+    typer.echo(f"{len(items)} pending review item(s):\n")
     for item in items:
-        preview = item.content.strip().replace("\n", " ")[:80]
-        typer.echo(f"[{item.id}] {item.classification_given} (confidence {item.confidence_given:.2f})")
-        typer.echo(f"    {preview}")
+        preview = item.content.strip().replace("\n", " ")[:100]
+        typer.echo(f"[{item.id}]  {item.classification_given}  (confidence {item.confidence_given:.2f})")
+        typer.echo(f"    capture:  {preview}")
+        if item.conflicting_fact_id:
+            conflicting = next(
+                (f for f in item.candidate_facts if f.get("id") == item.conflicting_fact_id), None
+            )
+            if conflicting:
+                fact_preview = str(conflicting.get("content", "")).strip().replace("\n", " ")[:100]
+                typer.echo(f"    conflicts:{fact_preview}")
+        typer.echo("")
+    typer.echo("Resolve:  recall review accept <id>            (classifier was right)")
+    typer.echo("          recall review override <id> <class>  (classifier was wrong)")
 
 
 @review_app.command("accept")
@@ -134,8 +145,10 @@ def retrieve(
 
 @app.command()
 def status():
-    """Not yet implemented."""
-    typer.echo("recall status: not yet implemented.")
+    """Show a read-only snapshot: capture / fact / review-queue / correction counts. No model calls."""
+    from src.status import gather, render
+
+    typer.echo(render(gather()))
 
 
 if __name__ == "__main__":

@@ -47,8 +47,9 @@ Phases 0–7 of `BUILD_PLAN.md` §6 are implemented, plus the Phase 2 follow-up.
   (`eval/COMBINED_CORRUPTION.md`), not 0 by construction.
 - **Phase 7 — correction data loop.** Every review accept/override is logged as a labelled example
   (`facts_in`, `classification_given`, `confidence_given`, `correct_classification`).
-
-Not yet built: Phase 8 CLI polish, including a working `recall status`.
+- **Phase 8 (partial) — CLI polish.** `recall status` prints a read-only store snapshot; the
+  review-queue commands show the conflicting fact and resolution hints. Broader UX polish is
+  ongoing.
 
 ## Usage
 
@@ -66,7 +67,7 @@ recall review override <id> <class>  # apply the correct classification instead
                                      #   (new|update|contradiction|context_dependent_both)
 recall retrieve "<query>"            # read path: format stored facts for a query, no model calls
                                      #   --entity / --scope to filter
-recall status                        # Phase 8, not built yet
+recall status                        # read-only store snapshot: capture/fact/review/correction counts
 ```
 
 Run `recall --help` for the command list.
