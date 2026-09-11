@@ -61,6 +61,11 @@ def _tfidf_matrix(documents: list[str]) -> np.ndarray:
 
 
 def _bm25_candidates(conn: sqlite3.Connection, query: str, k: int) -> list[tuple[str, float]]:
+    # semantic_facts_fts (src/index/build.py) indexes every fact's body unconditionally —
+    # invalidated ones included, it carries no invalid_at column of its own. It is NOT
+    # pre-filtered like semantic_facts is elsewhere in this pipeline; every query against it
+    # must JOIN back to semantic_facts and filter invalid_at here. (This is exactly how an
+    # invalidated fact leaked through as "ground truth" — see eval/DOGFOOD_FINDINGS.md.)
     tokens = _tokenize(query)
     if not tokens:
         return []
@@ -68,8 +73,10 @@ def _bm25_candidates(conn: sqlite3.Connection, query: str, k: int) -> list[tuple
     # exact adjacency. Each token individually quoted so FTS5 doesn't choke on stray syntax.
     match_query = " OR ".join(f'"{tok}"' for tok in tokens)
     rows = conn.execute(
-        "SELECT id, bm25(semantic_facts_fts) AS rank FROM semantic_facts_fts "
-        "WHERE semantic_facts_fts MATCH ? ORDER BY rank LIMIT ?",
+        "SELECT semantic_facts_fts.id, bm25(semantic_facts_fts) AS rank FROM semantic_facts_fts "
+        "JOIN semantic_facts ON semantic_facts.id = semantic_facts_fts.id "
+        "WHERE semantic_facts_fts MATCH ? AND semantic_facts.invalid_at IS NULL "
+        "ORDER BY rank LIMIT ?",
         (match_query, k),
     ).fetchall()
     # SQLite's bm25() returns *lower is better*; rank position is what RRF actually wants.
@@ -113,7 +120,8 @@ def search(index_db: Path, query: str, *, k: int = 10, rrf_constant: int = 60) -
         top_ids = sorted(fused_scores, key=fused_scores.get, reverse=True)[:k]
         placeholders = ",".join("?" for _ in top_ids)
         rows = conn.execute(
-            f"SELECT id, body, valid_at, scope FROM semantic_facts WHERE id IN ({placeholders})",
+            f"SELECT id, body, valid_at, scope FROM semantic_facts "
+            f"WHERE id IN ({placeholders}) AND invalid_at IS NULL",
             top_ids,
         ).fetchall()
         by_id = {row[0]: row for row in rows}

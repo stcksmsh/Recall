@@ -206,7 +206,7 @@
     "fix-bm25-invalid-at-leak": {
       "title": "Fix: BM25 retrieval path can return an invalidated fact as ground truth",
       "plan": "recall-v1",
-      "status": "pending",
+      "status": "done",
       "dependencies": [],
       "scope": [
         "src/retrieve/hybrid.py",
@@ -231,8 +231,34 @@
       ],
       "worker": null,
       "blocker": null,
-      "result": null,
-      "evidence": null
+      "result": "BM25 path (_bm25_candidates) now JOINs semantic_facts and filters invalid_at IS NULL, matching the vector/entity/graph paths; search()'s final fetch filters it too as defense-in-depth. Regression test confirmed red without the fix, green with it. Re-verified on the real corpus that leaked ef9b8275 -- 0 occurrences now. 70 tests pass.",
+      "evidence": {
+        "source_hash": "c7dc82360982f29a9b67035fe43d9d17ad8cfb6513a7a0a962b03943300022af",
+        "contract_hash": "03a641cae2dcc45c8323d9a17ecdf9ec9ec36f7d3f47a9ddf27c2b0b8613838e",
+        "success": true,
+        "runs": [
+          {
+            "schema_version": 1,
+            "id": "run-Mae3Up",
+            "argv": [
+              ".venv/bin/pytest",
+              "-q"
+            ],
+            "exit_code": 0,
+            "success": true,
+            "timed_out": false,
+            "duration_ms": 1307,
+            "stdout": ".ai/runtime/runs/run-Mae3Up/stdout.log",
+            "stderr": ".ai/runtime/runs/run-Mae3Up/stderr.log",
+            "diagnostics": [],
+            "tail": [
+              "......................................................................   [100%]",
+              "70 passed in 1.03s"
+            ],
+            "omitted": 0
+          }
+        ]
+      }
     },
     "phase8-polish": {
       "title": "Phase 8 CLI polish: recall status + review-queue UX",

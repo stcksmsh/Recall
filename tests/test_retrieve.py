@@ -1,3 +1,5 @@
+import frontmatter
+
 from src.consolidate.classifier import ClassificationResult
 from src.consolidate.executor import decide
 from src.index.build import build
@@ -35,6 +37,29 @@ def test_hybrid_search_returns_empty_on_empty_index(tmp_path):
     results = search(index_db, "anything")
 
     assert results == []
+
+
+def _invalidate(fact_path):
+    post = frontmatter.load(fact_path)
+    post["invalid_at"] = "2026-06-01T00:00:00+00:00"
+    fact_path.write_bytes(frontmatter.dumps(post).encode("utf-8"))
+
+
+def test_hybrid_search_never_returns_an_invalidated_fact(tmp_path):
+    """Regression: eval/DOGFOOD_FINDINGS.md — the BM25 path (_bm25_candidates, querying
+    semantic_facts_fts) didn't filter invalid_at, unlike the vector path, so an invalidated fact
+    that ranked well on exact keyword match could still come back as "ground truth"."""
+    brain_root = tmp_path / "brain"
+    # distinctive keyword that only this fact contains, so it dominates the BM25 rank
+    stale_path = _write_fact(brain_root, "Zorblatt is the codename for the payments migration.")
+    _write_fact(brain_root, "Unrelated fact about hiking.")
+    _invalidate(stale_path)
+    index_db = build(brain_root=brain_root)
+
+    results = search(index_db, "What is Zorblatt the codename for?")
+
+    assert all("Zorblatt" not in r.body for r in results)
+    assert all(r.id != frontmatter.load(stale_path)["id"] for r in results)
 
 
 def test_entity_scope_filters_by_scope(tmp_path):
