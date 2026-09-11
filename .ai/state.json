@@ -144,7 +144,7 @@
     "dogfood-consolidation": {
       "title": "Dogfood: run consolidation on Recall's own build history",
       "plan": "recall-v1",
-      "status": "pending",
+      "status": "done",
       "dependencies": [
         "provider-portability",
         "aiw-readonly-integration"
@@ -162,6 +162,63 @@
       "constraints": [
         "Uses the real classifier (measured), not a mock; cost is small but real",
         "Captures are append-only; do not rewrite history to make consolidation look good"
+      ],
+      "verify": [
+        {
+          "argv": [
+            ".venv/bin/pytest",
+            "-q"
+          ],
+          "timeout_seconds": 600
+        }
+      ],
+      "worker": null,
+      "blocker": null,
+      "result": "Ran real consolidate on 12 real build-history captures: 7 write_new, 1 supersede (correct), 4 review (unresolved). eval/DOGFOOD_FINDINGS.md: neither target question is currently surfaced -- (1) the one capture answering both is stuck in review, 0 corrections ever logged; (2) found & filed a real bug (BM25 path leaks invalidated facts as ground truth) as task fix-bm25-invalid-at-leak. Not smoothed over.",
+      "evidence": {
+        "source_hash": "2c8a137ca05599ddcc4c0fdc20eb9cedacde94011831ca49b51e0da5f3e8e658",
+        "contract_hash": "7786fd2c3570495a8ff3287f1430adc881ad958a4eb6c18219f5080e09977385",
+        "success": true,
+        "runs": [
+          {
+            "schema_version": 1,
+            "id": "run-Vu9U0S",
+            "argv": [
+              ".venv/bin/pytest",
+              "-q"
+            ],
+            "exit_code": 0,
+            "success": true,
+            "timed_out": false,
+            "duration_ms": 1246,
+            "stdout": ".ai/runtime/runs/run-Vu9U0S/stdout.log",
+            "stderr": ".ai/runtime/runs/run-Vu9U0S/stderr.log",
+            "diagnostics": [],
+            "tail": [
+              ".....................................................................    [100%]",
+              "69 passed in 0.99s"
+            ],
+            "omitted": 0
+          }
+        ]
+      }
+    },
+    "fix-bm25-invalid-at-leak": {
+      "title": "Fix: BM25 retrieval path can return an invalidated fact as ground truth",
+      "plan": "recall-v1",
+      "status": "pending",
+      "dependencies": [],
+      "scope": [
+        "src/retrieve/hybrid.py",
+        "tests/"
+      ],
+      "acceptance": [
+        "src/retrieve/hybrid.py's BM25 path (_bm25_candidates / semantic_facts_fts) and search()'s final by-id fetch never return a fact with invalid_at set, matching _vector_candidates/by_entity_or_scope/expand",
+        "A regression test seeds an invalidated fact that would win on BM25 rank and asserts it is absent from search()'s result",
+        "Full test suite still green"
+      ],
+      "constraints": [
+        "Found by eval/DOGFOOD_FINDINGS.md (dogfood-consolidation) — real leak observed via 'recall retrieve', not hypothetical"
       ],
       "verify": [
         {
