@@ -129,6 +129,54 @@ def test_load_detail_surfaces_extractor_note_and_live_fact_scope(tmp_path):
     assert detail.extractor_note == "a side observation"
     assert detail.conflicting_fact.scope == "work"
     assert detail.conflicting_fact.content == "original"
+    assert detail.considered_candidates == []  # a real conflict was named, nothing else to show
+
+
+def test_load_detail_shows_considered_candidates_when_none_flagged_as_conflicting(tmp_path):
+    """Regression: a real review item (context_dependent_both, conflicting_fact_id=null) had a
+    real candidate the classifier reasoned about but didn't name -- showing a flat 'none' threw
+    that context away."""
+    brain_root = tmp_path / "brain"
+    new_decision = decide(ClassificationResult("new", 0.9, "no overlap", None), capture_id="c0")
+    flush(new_decision, capture_content="the existing claim", captured_at="2026-01-01",
+          brain_root=brain_root, entity="work", scope="work")
+    fact_id = frontmatter.load(next((brain_root / "semantic" / "facts" / "work").glob("*.md")))["id"]
+
+    # conflicting_fact_id=None even though a candidate was shown -- exactly the real case.
+    review_decision = decide(
+        ClassificationResult("context_dependent_both", 0.72, "coexists, not really a conflict", None),
+        capture_id="c1",
+    )
+    flush(
+        review_decision, capture_content="a related but distinct claim", captured_at="2026-08-01",
+        brain_root=brain_root,
+        candidate_facts=[{"id": fact_id, "valid_at": "2026-01-01", "content": "the existing claim"}],
+    )
+    item = list_pending(brain_root=brain_root)[0]
+    assert item.conflicting_fact_id is None
+
+    detail = load_detail(item, brain_root=brain_root)
+
+    assert detail.conflicting_fact is None
+    assert len(detail.considered_candidates) == 1
+    assert detail.considered_candidates[0].content == "the existing claim"
+    assert detail.considered_candidates[0].scope == "work"  # live-looked-up, like the named case
+
+
+def test_load_detail_shows_nothing_when_no_candidates_at_all(tmp_path):
+    brain_root = tmp_path / "brain"
+    decision = decide(
+        ClassificationResult("context_dependent_both", 0.72, "no candidates were available", None),
+        capture_id="c1",
+    )
+    flush(decision, capture_content="an isolated claim", captured_at="2026-08-01",
+          brain_root=brain_root, candidate_facts=[])
+    item = list_pending(brain_root=brain_root)[0]
+
+    detail = load_detail(item, brain_root=brain_root)
+
+    assert detail.conflicting_fact is None
+    assert detail.considered_candidates == []
 
 
 async def _drive_confirm_then_skip_then_quit(app: ReviewApp):
@@ -260,3 +308,26 @@ def test_cli_review_list_subcommand_still_bypasses_tui(monkeypatch):
 
     assert result.exit_code == 0, result.output
     assert calls == []
+
+
+def test_cli_review_list_shows_considered_candidates_when_none_flagged(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    brain_root = tmp_path / "brain"
+    new_decision = decide(ClassificationResult("new", 0.9, "no overlap", None), capture_id="c0")
+    flush(new_decision, capture_content="the existing claim", captured_at="2026-01-01", brain_root=brain_root)
+    fact_id = frontmatter.load(next((brain_root / "semantic" / "facts" / "unsorted").glob("*.md")))["id"]
+
+    review_decision = decide(
+        ClassificationResult("context_dependent_both", 0.72, "coexists", None), capture_id="c1"
+    )
+    flush(
+        review_decision, capture_content="a related but distinct claim", captured_at="2026-08-01",
+        brain_root=brain_root,
+        candidate_facts=[{"id": fact_id, "valid_at": "2026-01-01", "content": "the existing claim"}],
+    )
+
+    result = runner.invoke(cli_app, ["review", "list"])
+
+    assert result.exit_code == 0, result.output
+    assert "considered (1, none flagged as conflicting)" in result.output
+    assert "the existing claim" in result.output

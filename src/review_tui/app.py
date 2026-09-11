@@ -131,6 +131,16 @@ class ReviewApp(App):
                 f"[b]Existing fact[/b]  valid_at={f.valid_at or 'unknown'}  "
                 f"scope={f.scope or '(none)'}\n\n{f.content}"
             )
+        elif detail.considered_candidates:
+            blocks = "\n\n".join(
+                f"  valid_at={c.valid_at or 'unknown'}  scope={c.scope or '(none)'}\n  {c.content}"
+                for c in detail.considered_candidates
+            )
+            fact_widget.update(
+                "[b]Existing fact[/b]: none flagged as conflicting, but the classifier "
+                f"considered {len(detail.considered_candidates)} candidate(s) (see reasoning "
+                f"below for why none was named):\n\n{blocks}"
+            )
         else:
             fact_widget.update("[b]Existing fact[/b]: none recorded for this item")
 

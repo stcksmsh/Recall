@@ -864,6 +864,64 @@
         ]
       }
     },
+    "show-considered-candidates": {
+      "title": "Show candidate_facts even when conflicting_fact_id is null",
+      "plan": "recall-v1",
+      "status": "done",
+      "dependencies": [],
+      "scope": [
+        "src/review_tui/",
+        "src/cli.py",
+        "tests/"
+      ],
+      "acceptance": [
+        "When conflicting_fact_id is empty but candidate_facts is non-empty, TUI and 'recall review list' show the candidates as 'considered, not flagged as conflicting' instead of a flat 'none'",
+        "Full test suite still green"
+      ],
+      "constraints": [
+        "Display-only; no change to classification/decide/executor logic"
+      ],
+      "verify": [
+        {
+          "argv": [
+            ".venv/bin/pytest",
+            "-q"
+          ],
+          "timeout_seconds": 600
+        }
+      ],
+      "worker": null,
+      "blocker": null,
+      "result": "load_detail() now surfaces candidate_facts as 'considered_candidates' (live-looked-up) whenever conflicting_fact_id is null but candidates exist; TUI + 'recall review list' both show them labeled non-conflicting instead of a flat 'none'. Verified against the real item that prompted this. 3 new tests, 85 total pass.",
+      "evidence": {
+        "source_hash": "f2b5663ec7b58327dcf6d1182900745b557bf8b7e52a6599529340526ab87778",
+        "contract_hash": "e2ab8a616e1c7883f4647ee04bbd1dfd4504909735f1d38fd691219673756a35",
+        "success": true,
+        "runs": [
+          {
+            "schema_version": 1,
+            "id": "run-YDWhCO",
+            "argv": [
+              ".venv/bin/pytest",
+              "-q"
+            ],
+            "exit_code": 0,
+            "success": true,
+            "timed_out": false,
+            "duration_ms": 3615,
+            "stdout": ".ai/runtime/runs/run-YDWhCO/stdout.log",
+            "stderr": ".ai/runtime/runs/run-YDWhCO/stderr.log",
+            "diagnostics": [],
+            "tail": [
+              "........................................................................ [ 84%]",
+              ".............                                                            [100%]",
+              "85 passed in 3.32s"
+            ],
+            "omitted": 0
+          }
+        ]
+      }
+    },
     "start-daily-usage": {
       "title": "Begin real daily usage of recall on actual notes/work",
       "plan": "recall-v1",
@@ -999,7 +1057,7 @@
   "active_task": null,
   "checkpoint": {
     "task": null,
-    "next_action": "45 review items still pending (owner's real judgment calls) -- run 'recall review' to work through them with the new TUI. retrieval-precision-at-scale is next agent-doable task if picked up. start-daily-usage/retraction-classifier-revisit still owner-blocked.",
-    "note": "review-tui shipped: textual TUI for recall review, routes through existing accept/override, verified structurally-identical correction records. HEAD Recall=e047dfc, recall-brain=29ea71b. 78 tests pass."
+    "next_action": "45 review items still pending. retrieval-precision-at-scale is next agent-doable task. start-daily-usage/retraction-classifier-revisit still owner-blocked.",
+    "note": "reviewer_note shipped: optional field on correction records (accept+override, CLI --note, TUI Input). HEAD Recall=<latest>, recall-brain=7f2b3ec. 82 tests pass."
   }
 }

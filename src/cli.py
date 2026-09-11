@@ -122,6 +122,13 @@ def review_list():
             if conflicting:
                 fact_preview = str(conflicting.get("content", "")).strip().replace("\n", " ")[:100]
                 typer.echo(f"    conflicts:{fact_preview}")
+        elif item.candidate_facts:
+            # No fact was flagged as conflicting, but the classifier did see candidates and
+            # reasoned about them -- surface that instead of implying it saw nothing at all.
+            typer.echo(f"    considered ({len(item.candidate_facts)}, none flagged as conflicting):")
+            for f in item.candidate_facts:
+                preview = str(f.get("content", "")).strip().replace("\n", " ")[:100]
+                typer.echo(f"      - {preview}")
         typer.echo("")
     typer.echo("Resolve:  recall review accept <id>            (classifier was right)")
     typer.echo("          recall review override <id> <class>  (classifier was wrong)")
