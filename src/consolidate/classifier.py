@@ -110,8 +110,11 @@ def anthropic_provider(*, model: str = DEFAULT_MODEL, client: anthropic.Anthropi
                     "configured provider, or set the key."
                 )
             client = anthropic.Anthropic(api_key=api_key)
+        # 512 truncated mid-JSON on a verbose real capture during the combined backfill import
+        # (long content -> long "reasoning" field -> cut off before the closing brace ->
+        # unparseable). 1024 is cheap insurance, not a prompt/threshold change.
         response = client.messages.create(
-            model=model, max_tokens=512, messages=[{"role": "user", "content": prompt}],
+            model=model, max_tokens=1024, messages=[{"role": "user", "content": prompt}],
         )
         text_blocks = [block.text for block in response.content if block.type == "text"]
         if not text_blocks:
@@ -134,7 +137,7 @@ def local_gguf_provider(*, model_path: str, n_ctx: int = 4096, n_threads: int | 
     def call(prompt: str) -> str:
         out = llm.create_chat_completion(
             messages=[{"role": "user", "content": prompt}],
-            max_tokens=512, temperature=0.0,
+            max_tokens=1024, temperature=0.0,
             response_format={"type": "json_object"},
         )
         return out["choices"][0]["message"]["content"]
