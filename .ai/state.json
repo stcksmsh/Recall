@@ -84,6 +84,101 @@
         ]
       }
     },
+    "backfill-import-combined": {
+      "title": "Merge + import two historical backfill batches, run real consolidation once",
+      "plan": "recall-v1",
+      "status": "in_progress",
+      "dependencies": [
+        "brain-private-split"
+      ],
+      "scope": [
+        "brain/"
+      ],
+      "acceptance": [
+        "Both yaml files merged into one globally-chronological stream before any brain/episodic/ writes",
+        "ID collisions and near-duplicate content across batches checked and reported, not silently deduped",
+        "extractor_note stored in episodic frontmatter as audit-only, never in classifier prompt input",
+        "All entries written to brain/episodic/ by real captured_at date, source backfill:conversation-history, imported_at = today",
+        "recall consolidate run executed once across the full combined chronological set",
+        "Report: total count, date range, review/auto-applied split, confidence distribution, retrieval-quality observations at larger scale, extractor_note-vs-classifier disagreements, full review-queue listing"
+      ],
+      "constraints": [
+        "Committed to brain/'s own (private) repo, not Recall; commit message must distinguish this as backfill import, not organic usage",
+        "Do not touch Phase 8 or README.md"
+      ],
+      "verify": [
+        {
+          "argv": [
+            ".venv/bin/pytest",
+            "-q"
+          ],
+          "timeout_seconds": 600
+        }
+      ],
+      "worker": null,
+      "blocker": null,
+      "result": null,
+      "evidence": null
+    },
+    "brain-private-split": {
+      "title": "Split brain/ into its own private repo (privacy fix)",
+      "plan": "recall-v1",
+      "status": "done",
+      "dependencies": [],
+      "scope": [
+        ".gitignore",
+        "src/inject/",
+        "src/retrieve/pipeline.py",
+        ".ai/decisions/"
+      ],
+      "acceptance": [
+        "brain/ is git-tracked as its own repo (github.com/stcksmsh/recall-brain, private), fully gitignored in this repo, full prior history preserved",
+        "src/inject/provenance.py callers stamp brain/'s own commit hash, not this repo's cwd",
+        "Full test suite still green"
+      ],
+      "constraints": [
+        "Triggered mid-backfill-import: this repo is public, brain/ was about to receive real personal data"
+      ],
+      "verify": [
+        {
+          "argv": [
+            ".venv/bin/pytest",
+            "-q"
+          ],
+          "timeout_seconds": 600
+        }
+      ],
+      "worker": null,
+      "blocker": null,
+      "result": "brain/ split into github.com/stcksmsh/recall-brain (private), full history preserved via git filter-repo, stripped from Recall's public history + force-pushed, gitignored here. Fixed provenance.py stamping to use brain_root not cwd (was silently wrong post-split). 70 tests pass, live-verified correct commit hash stamping. Commit b41eb4c.",
+      "evidence": {
+        "source_hash": "0a9a19e0cd612fe1854a2d045b52406de382f6d6f3602b2a0574c5fde50c618d",
+        "contract_hash": "16a04080c185e85a52428e5ce462d5bd26b2a90a97fae6801efd775826ee6a47",
+        "success": true,
+        "runs": [
+          {
+            "schema_version": 1,
+            "id": "run-NFmOz1",
+            "argv": [
+              ".venv/bin/pytest",
+              "-q"
+            ],
+            "exit_code": 0,
+            "success": true,
+            "timed_out": false,
+            "duration_ms": 1407,
+            "stdout": ".ai/runtime/runs/run-NFmOz1/stdout.log",
+            "stderr": ".ai/runtime/runs/run-NFmOz1/stderr.log",
+            "diagnostics": [],
+            "tail": [
+              "......................................................................   [100%]",
+              "70 passed in 1.10s"
+            ],
+            "omitted": 0
+          }
+        ]
+      }
+    },
     "combined-corruption-rate": {
       "title": "End-to-end silent-corruption rate: classifier gate + verifier together",
       "plan": "recall-v1",
@@ -584,6 +679,38 @@
           }
         ]
       }
+    },
+    "retrieval-precision-at-scale": {
+      "title": "Retrieval pads to k with near-zero-relevance facts once the store is topically varied",
+      "plan": "recall-v1",
+      "status": "pending",
+      "dependencies": [],
+      "scope": [
+        "src/retrieve/",
+        "tests/",
+        "eval/"
+      ],
+      "acceptance": [
+        "A repro case (fixture with >=50 topically-disparate facts) shows RRF fusion returning k results even when fewer than k are meaningfully relevant, with near-flat scores among the irrelevant tail",
+        "Either a relevance-score floor/cutoff is added to search(), or sufficiency.check() is tightened to flag this dilution case, or both -- with before/after scores in the eval note",
+        "Full test suite still green"
+      ],
+      "constraints": [
+        "Found via backfill-import-combined: at ~8 facts every query returned everything trivially (masked the issue); at 73 facts across disparate topics (cognitive-architecture vs personal/finance/music), a finance query's #1 result was correct (highest RRF score) but ranks #2-10 were near-random padding with near-identical low scores, and sufficiency.check() did not flag it"
+      ],
+      "verify": [
+        {
+          "argv": [
+            ".venv/bin/pytest",
+            "-q"
+          ],
+          "timeout_seconds": 600
+        }
+      ],
+      "worker": null,
+      "blocker": null,
+      "result": null,
+      "evidence": null
     },
     "start-daily-usage": {
       "title": "Begin real daily usage of recall on actual notes/work",
