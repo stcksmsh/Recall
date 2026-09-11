@@ -37,7 +37,10 @@ def active_facts(*, brain_root: Path = BRAIN_ROOT) -> list[RetrievedFact]:
     return out
 
 
-def render_for_session(*, brain_root: Path = BRAIN_ROOT, repo_root: Path = Path(".")) -> str:
+def render_for_session(*, brain_root: Path = BRAIN_ROOT, repo_root: Path | None = None) -> str:
     """The full injection-formatted context for a fresh session: every active fact, XML-tagged
-    and authority-framed, exactly like a retrieve result — just unfiltered by any query."""
-    return format_facts(active_facts(brain_root=brain_root), repo_root=repo_root)
+    and authority-framed, exactly like a retrieve result — just unfiltered by any query.
+
+    repo_root defaults to brain_root, not cwd: brain/ is its own git repo (split out per
+    .ai/decisions/0009), so that's where the provenance commit hash actually comes from."""
+    return format_facts(active_facts(brain_root=brain_root), repo_root=repo_root or brain_root)

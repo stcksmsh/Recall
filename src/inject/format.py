@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from src.inject.provenance import stamp
 from src.retrieve.hybrid import RetrievedFact
 
@@ -12,10 +14,14 @@ do not fully cover the question, say so explicitly rather than filling gaps from
 Before answering, restate the specific stored fact(s) you are relying on, with their IDs.
 Then answer the user's question."""
 
+# brain/ is its own git repo as of .ai/decisions/0009 (split out of the code repo for privacy)
+# — the provenance-relevant commit lives there, not in whatever repo the caller's cwd sits in.
+_DEFAULT_REPO_ROOT = Path("brain")
 
-def format_facts(facts: list[RetrievedFact], *, repo_root=None) -> str:
+
+def format_facts(facts: list[RetrievedFact], *, repo_root: Path | None = None) -> str:
     """Render retrieved facts as XML-tagged blocks plus the authority-framing instruction."""
-    source_commit = stamp(repo_root=repo_root) if repo_root else stamp()
+    source_commit = stamp(repo_root=repo_root or _DEFAULT_REPO_ROOT)
 
     if not facts:
         return (

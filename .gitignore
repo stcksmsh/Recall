@@ -1,5 +1,7 @@
-# Derived, rebuildable index — never versioned. `recall index build` recreates it from brain/semantic/.
-brain/.brainindex/
+# brain/ is its own separate, private git repo (github.com/stcksmsh/recall-brain) as of
+# .ai/decisions/0009 — split out of this (public) repo so real personal data never lands in
+# public history. Ignored here entirely, including its own derived index.
+brain/
 
 # Python
 __pycache__/

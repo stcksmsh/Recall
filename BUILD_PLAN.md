@@ -16,7 +16,8 @@ model. Company laptop is out of scope entirely — not used for anything in this
 
 ```
 [project]/
-├── brain/                        # the actual data store (this is what gets git-committed as the "memory")
+├── brain/                        # the actual data store — its own PRIVATE git repo as of
+│                                  #   decisions/0009, not part of this repo's history
 │   ├── episodic/                 # Tier 1 — immutable, append-only captures
 │   │   └── 2026/
 │   │       └── 08/

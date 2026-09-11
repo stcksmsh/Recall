@@ -32,7 +32,9 @@ def retrieve_and_format(
 
     expanded = expand(index_db, combined)
 
-    formatted = format_facts(expanded, repo_root=Path("."))
+    # brain/ is its own git repo (split out per .ai/decisions/0009) — the commit hash that
+    # actually covers what was injected lives there, not in the calling repo's cwd.
+    formatted = format_facts(expanded, repo_root=brain_root)
     if not sufficiency.sufficient:
         formatted += f"\n\n[sufficiency check: INSUFFICIENT — {sufficiency.reason}]"
 
