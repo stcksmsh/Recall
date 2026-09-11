@@ -15,7 +15,7 @@ import frontmatter
 
 from src.consolidate.executor import Action, Decision
 
-BRAIN_ROOT = Path("brain")
+from src.config import BRAIN_ROOT
 UNSORTED_ENTITY = "unsorted"
 
 

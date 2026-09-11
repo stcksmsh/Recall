@@ -18,7 +18,7 @@ from src.consolidate.classifier import VALID_CLASSIFICATIONS
 from src.consolidate.review import ReviewItem
 from src.review_tui.detail import ReviewDetail, load_detail
 
-BRAIN_ROOT = Path("brain")
+from src.config import BRAIN_ROOT
 # Fixed, readable order for the Select widget -- VALID_CLASSIFICATIONS is a set.
 CLASSIFICATIONS = ["new", "update", "contradiction", "context_dependent_both"]
 assert set(CLASSIFICATIONS) == VALID_CLASSIFICATIONS

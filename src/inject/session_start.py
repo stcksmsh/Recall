@@ -16,7 +16,7 @@ import frontmatter
 from src.inject.format import format_facts
 from src.retrieve.hybrid import RetrievedFact
 
-BRAIN_ROOT = Path("brain")
+from src.config import BRAIN_ROOT
 
 
 def active_facts(*, brain_root: Path = BRAIN_ROOT) -> list[RetrievedFact]:

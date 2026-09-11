@@ -14,7 +14,7 @@ from pathlib import Path
 
 import frontmatter
 
-BRAIN_ROOT = Path("brain")
+from src.config import BRAIN_ROOT
 INDEX_DIR = BRAIN_ROOT / ".brainindex"
 INDEX_DB = INDEX_DIR / "index.db"
 

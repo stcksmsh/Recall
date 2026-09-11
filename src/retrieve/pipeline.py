@@ -12,7 +12,7 @@ from src.retrieve.graph_expand import expand
 from src.retrieve.hybrid import search
 from src.retrieve.sufficiency import check
 
-BRAIN_ROOT = Path("brain")
+from src.config import BRAIN_ROOT
 
 
 def retrieve_and_format(

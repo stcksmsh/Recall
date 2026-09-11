@@ -17,7 +17,7 @@ from src.consolidate.corrections import record_correction
 from src.consolidate.executor import Decision, resolved_action_for
 from src.index.flush import flush
 
-BRAIN_ROOT = Path("brain")
+from src.config import BRAIN_ROOT
 
 
 @dataclass

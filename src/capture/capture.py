@@ -8,7 +8,7 @@ from pathlib import Path
 
 import frontmatter
 
-BRAIN_ROOT = Path("brain")
+from src.config import BRAIN_ROOT
 EPISODIC_ROOT = BRAIN_ROOT / "episodic"
 
 

@@ -16,7 +16,7 @@ from src.index.build import build
 from src.index.flush import flush
 from src.verify import verify
 
-BRAIN_ROOT = Path("brain")
+from src.config import BRAIN_ROOT
 
 # Decisions that write an invalidation or a second retained fact — the destructive auto-applies
 # Phase 6 verification guards. WRITE_NEW is additive and REVIEW is already safe.

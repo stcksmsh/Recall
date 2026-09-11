@@ -13,7 +13,7 @@ import frontmatter
 from src.consolidate.review import ReviewItem
 from src.index.flush import _find_fact_path
 
-BRAIN_ROOT = Path("brain")
+from src.config import BRAIN_ROOT
 
 
 @dataclass

@@ -13,7 +13,7 @@ from pathlib import Path
 from src.consolidate.run import _unconsolidated_captures
 from src.index.build import build
 
-BRAIN_ROOT = Path("brain")
+from src.config import BRAIN_ROOT
 
 RETRACTION_CAVEAT = (
     "The Phase 6 verifier catches first-person retraction phrasing only. A confident retraction "
