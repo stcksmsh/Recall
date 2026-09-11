@@ -1117,7 +1117,7 @@
   "active_task": null,
   "checkpoint": {
     "task": null,
-    "next_action": "Pick next ready task via aiw list tasks. retraction-classifier-revisit still blocked in spirit (no retraction-flavored corrections yet).",
-    "note": "retrieval-precision-at-scale revised+done: real-corpus investigation found the prior fixture-only fix didn't generalize (fused-RRF-score floor is structurally inert). Real fix floors each signal's raw magnitude pre-fusion in src/retrieve/hybrid.py. Entity anchoring confirmed never-engaged but not this case's cause -- known limitation. 1 genuine unfixed lexical-collision case documented in LIMITATIONS.md, needs real embeddings. New eval/retrieval_quality_set/ (synthetic, public-repo-safe) wired into pytest, 90 tests green. Caught+fixed a near-miss: real personal financial content was briefly staged for the public repo before commit -- flagged by Bash permission classifier, replaced with synthetic content. 3 commits pushed to Recall master (46e6cd7 investigation, 265612a fix, 57dbb6f eval+docs); 1 capture pushed to brain master. Both repos clean."
+    "next_action": "Pick next ready task via aiw list tasks. retraction-classifier-revisit still blocked in spirit.",
+    "note": "Ad-hoc (not AIW-tracked): centralized BRAIN_ROOT into src/config.py (was hardcoded in 11 files), added CLAUDE.md pointer to decisions/0009's brain/-is-private boundary since a near-miss happened earlier this session. 90 tests green, both repos clean and pushed (Recall=30a9a4f, recall-brain=9773cf0)."
   }
 }
