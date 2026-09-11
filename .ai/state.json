@@ -1090,7 +1090,7 @@
   "active_task": null,
   "checkpoint": {
     "task": null,
-    "next_action": "retrieval-precision-at-scale is the one clearly ready, agent-doable task. retraction-classifier-revisit stays blocked (deps satisfied but no retraction-flavored corrections yet, 0 of 45). 4 dogfood captures sitting unconsolidated (routine, not urgent).",
-    "note": "start-daily-usage marked done: acceptance genuinely satisfied (112 real backfilled captures + real consolidate runs + full real review resolution, 45 corrections logged: 42 accepted/3 overridden). retraction-classifier-revisit blocker text updated to be precise about WHY it's still not ready (no retraction-pattern examples among the 3 real overrides, not just 'no corrections')."
+    "next_action": "retrieval-precision-at-scale is the only ready, agent-doable task. retraction-classifier-revisit stays blocked until a retraction-flavored correction shows up (47 corrections exist, still none of that pattern).",
+    "note": "Clean handoff point: both repos clean+pushed (Recall=13c02ed, recall-brain=07157c4), 85 tests pass, review queue empty (47 corrections logged: real signal now exists). brain/ is a SEPARATE PRIVATE git repo (github.com/stcksmsh/recall-brain) as of decisions/0009 -- nested inside this checkout at ./brain/, its own remote, ignored by this repo's git entirely. Never assume a plain git push here touches it."
   }
 }
