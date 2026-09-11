@@ -9,6 +9,12 @@ force the "retracted-as-error vs. aged-out" distinction was tried in three varia
 one was a net regression on the 46-case real set (see eval/PHASE2_FOLLOWUP_FINDINGS.md). The
 prompt below is the Phase 2 baseline, unchanged. `parse_response` is split out so the model
 comparison in run_eval.py can reuse the exact same parsing for local models.
+
+Provider portability: `classify()` doesn't hardcode the Anthropic SDK — it sends the built
+prompt through a `ProviderFn` (`str -> str`), selected by name (`PROVIDERS`, config via
+RECALL_CLASSIFIER_PROVIDER) or passed directly as any such callable. Anthropic stays the
+default; a second real backend (`local_gguf_provider`) and its measured accuracy are in
+eval/PROVIDER_PORTABILITY.md. This does not change the prompt or DEFAULT_CONFIDENCE_THRESHOLD.
 """
 
 from __future__ import annotations
@@ -16,6 +22,7 @@ from __future__ import annotations
 import json
 import os
 from dataclasses import dataclass
+from typing import Callable
 
 import anthropic
 from dotenv import load_dotenv
@@ -23,6 +30,16 @@ from dotenv import load_dotenv
 load_dotenv()
 
 DEFAULT_MODEL = "claude-sonnet-5"
+
+# Provider/model selection is config, not a code branch: RECALL_CLASSIFIER_PROVIDER picks the
+# named backend (see PROVIDERS below); classify()'s `provider` argument overrides it per call,
+# and also accepts an arbitrary ProviderFn directly (the adapter seam), e.g. for tests.
+DEFAULT_PROVIDER = os.environ.get("RECALL_CLASSIFIER_PROVIDER", "anthropic")
+
+# A provider is just "prompt in, raw model text out" — everything downstream (parse_response)
+# is provider-agnostic. This is the same shape eval/run_eval.py's backends already used; the
+# seam is lifted here so the write path (this module) and the eval harness share one adapter.
+ProviderFn = Callable[[str], str]
 
 VALID_CLASSIFICATIONS = {"new", "update", "contradiction", "context_dependent_both"}
 
@@ -78,33 +95,90 @@ def _build_prompt(new_capture: Capture, existing_facts: list[ExistingFact]) -> s
     )
 
 
+def anthropic_provider(*, model: str = DEFAULT_MODEL, client: anthropic.Anthropic | None = None) -> ProviderFn:
+    """Hosted API backend (the default). `client` is itself already an adapter seam — pass a
+    fake with a `.messages.create()` shape to test without a network call."""
+
+    def call(prompt: str) -> str:
+        nonlocal client
+        if client is None:
+            api_key = os.environ.get("ANTHROPIC_API_KEY")
+            if not api_key:
+                raise RuntimeError(
+                    "ANTHROPIC_API_KEY is not set for classifier provider 'anthropic'. Set "
+                    "RECALL_CLASSIFIER_PROVIDER=local (with a model_path) to use a different "
+                    "configured provider, or set the key."
+                )
+            client = anthropic.Anthropic(api_key=api_key)
+        response = client.messages.create(
+            model=model, max_tokens=512, messages=[{"role": "user", "content": prompt}],
+        )
+        text_blocks = [block.text for block in response.content if block.type == "text"]
+        if not text_blocks:
+            raise ValueError(f"Classifier response had no text block: {response.content!r}")
+        return text_blocks[0]
+
+    return call
+
+
+def local_gguf_provider(*, model_path: str, n_ctx: int = 4096, n_threads: int | None = None) -> ProviderFn:
+    """CPU-local GGUF backend via llama-cpp-python (optional extra `local-eval`; lazy import so
+    the rest of this module doesn't require it installed). Measured accuracy is materially worse
+    than the default and not recommended for real use — Qwen2.5-7B-Q4 scored 13/46 = 28.3% on
+    the real eval set, 0/8 contradiction recall (`eval/PHASE2_FOLLOWUP_FINDINGS.md`). Kept as a
+    genuine second provider path, not a hidden fallback."""
+    from llama_cpp import Llama
+
+    llm = Llama(model_path=model_path, n_ctx=n_ctx, n_threads=n_threads, verbose=False, n_gpu_layers=0)
+
+    def call(prompt: str) -> str:
+        out = llm.create_chat_completion(
+            messages=[{"role": "user", "content": prompt}],
+            max_tokens=512, temperature=0.0,
+            response_format={"type": "json_object"},
+        )
+        return out["choices"][0]["message"]["content"]
+
+    return call
+
+
+# Named providers classify(provider=...) can select by string. "anthropic" is handled inline in
+# classify() (it needs `model`/`client` threaded through, not just provider_kwargs); registered
+# here too so callers can introspect what's configured.
+PROVIDERS: dict[str, Callable[..., ProviderFn]] = {
+    "anthropic": anthropic_provider,
+    "local": local_gguf_provider,
+}
+
+
 def classify(
     new_capture: Capture,
     existing_facts: list[ExistingFact],
     *,
     model: str = DEFAULT_MODEL,
     client: anthropic.Anthropic | None = None,
+    provider: str | ProviderFn = DEFAULT_PROVIDER,
+    **provider_kwargs,
 ) -> ClassificationResult:
-    """Send one classification call. Raises if the API key is missing or the response is malformed."""
-    if client is None:
-        api_key = os.environ.get("ANTHROPIC_API_KEY")
-        if not api_key:
-            raise RuntimeError(
-                "ANTHROPIC_API_KEY is not set. The classifier requires a hosted strong-model API "
-                "per BUILD_PLAN.md §3 — no local classifier is supported."
-            )
-        client = anthropic.Anthropic(api_key=api_key)
+    """Send one classification call through the configured provider and parse its response.
+
+    `provider` is either a registered name (PROVIDERS; default from RECALL_CLASSIFIER_PROVIDER,
+    itself defaulting to "anthropic") or any ProviderFn — a `str -> str` callable — for a fully
+    custom or fake backend. Raises if the resolved provider can't run (e.g. missing API key) or
+    the response is malformed.
+    """
+    if callable(provider):
+        provider_fn = provider
+    elif provider == "anthropic":
+        provider_fn = anthropic_provider(model=model, client=client)
+    elif provider in PROVIDERS:
+        provider_fn = PROVIDERS[provider](**provider_kwargs)
+    else:
+        raise ValueError(f"Unknown classifier provider: {provider!r}. Known: {sorted(PROVIDERS)}")
 
     prompt = _build_prompt(new_capture, existing_facts)
-    response = client.messages.create(
-        model=model,
-        max_tokens=512,
-        messages=[{"role": "user", "content": prompt}],
-    )
-    text_blocks = [block.text for block in response.content if block.type == "text"]
-    if not text_blocks:
-        raise ValueError(f"Classifier response had no text block: {response.content!r}")
-    return parse_response(text_blocks[0])
+    raw_text = provider_fn(prompt)
+    return parse_response(raw_text)
 
 
 def parse_response(raw_text: str) -> ClassificationResult:

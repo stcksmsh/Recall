@@ -212,7 +212,7 @@
     "provider-portability": {
       "title": "Make the write-path classifier provider-swappable",
       "plan": "recall-v1",
-      "status": "pending",
+      "status": "done",
       "dependencies": [
         "readme-accuracy"
       ],
@@ -243,8 +243,34 @@
       ],
       "worker": null,
       "blocker": null,
-      "result": null,
-      "evidence": null
+      "result": "classify() decoupled from the Anthropic SDK: providers are 'str->str' callables selected via provider= (name from PROVIDERS, or any callable) / RECALL_CLASSIFIER_PROVIDER env, default anthropic unchanged. Second real provider (local_gguf_provider) added; RuntimeError names the configured provider, no longer an absolute claim. eval/PROVIDER_PORTABILITY.md reports the already-measured 43.5%/28.3% alt-provider numbers (invariant 6). 4 new tests, 61 total pass.",
+      "evidence": {
+        "source_hash": "603dc6f534165b2373bb66ced7eb2714db451d0d914d24785b767011f3ae125b",
+        "contract_hash": "1c93eda035bcf3a3e9afdfb09419cbc6ded2abc49db5f031fd324df61165eefd",
+        "success": true,
+        "runs": [
+          {
+            "schema_version": 1,
+            "id": "run-G96ZaB",
+            "argv": [
+              ".venv/bin/pytest",
+              "-q"
+            ],
+            "exit_code": 0,
+            "success": true,
+            "timed_out": false,
+            "duration_ms": 1166,
+            "stdout": ".ai/runtime/runs/run-G96ZaB/stdout.log",
+            "stderr": ".ai/runtime/runs/run-G96ZaB/stderr.log",
+            "diagnostics": [],
+            "tail": [
+              ".............................................................            [100%]",
+              "61 passed in 0.92s"
+            ],
+            "omitted": 0
+          }
+        ]
+      }
     },
     "readme-accuracy": {
       "title": "README reflects the actually-implemented system state",

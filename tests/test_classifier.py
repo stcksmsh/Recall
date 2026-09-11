@@ -3,7 +3,7 @@ from unittest.mock import MagicMock
 import pytest
 
 from src.consolidate.classifier import (
-    Capture, ExistingFact, _build_prompt, classify, parse_response,
+    Capture, ExistingFact, PROVIDERS, _build_prompt, classify, parse_response,
 )
 
 
@@ -80,3 +80,49 @@ def test_parse_response_extracts_json_wrapped_in_prose():
 def test_parse_response_rejects_unknown_classification():
     with pytest.raises(ValueError, match="invalid classification"):
         parse_response('{"classification": "maybe", "confidence": 0.5}')
+
+
+# --- provider-portability (provider is a "str -> str" callable, not an Anthropic-specific type) ---
+
+def test_classify_accepts_a_fake_provider_function():
+    """The adapter seam: `provider` can be any prompt-in/text-out callable, not just an
+    anthropic.Anthropic client. No network, no ANTHROPIC_API_KEY needed."""
+    calls = []
+
+    def fake_provider(prompt: str) -> str:
+        calls.append(prompt)
+        return '{"classification": "new", "confidence": 0.99, "reasoning": "fake", "conflicting_fact_id": null}'
+
+    cap = Capture(id="c1", captured_at="2026-08-01", content="fresh content")
+
+    result = classify(cap, [], provider=fake_provider)
+
+    assert result.classification == "new"
+    assert len(calls) == 1
+    assert "fresh content" in calls[0]
+
+
+def test_classify_unknown_named_provider_names_it_in_the_error():
+    cap = Capture(id="c1", captured_at="2026-08-01", content="text")
+
+    with pytest.raises(ValueError, match="not-a-real-provider"):
+        classify(cap, [], provider="not-a-real-provider")
+
+
+def test_anthropic_provider_error_names_the_provider_not_an_absolute_claim(monkeypatch):
+    """Regression guard: the error must name the configured provider and must not claim, as an
+    absolute, that no other provider is supported (a second provider now exists: PROVIDERS)."""
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    cap = Capture(id="c1", captured_at="2026-08-01", content="text")
+
+    with pytest.raises(RuntimeError) as exc_info:
+        classify(cap, [], provider="anthropic", client=None)
+
+    message = str(exc_info.value)
+    assert "anthropic" in message
+    assert "no local classifier is supported" not in message
+
+
+def test_providers_registry_has_anthropic_default_and_a_second_provider():
+    assert "anthropic" in PROVIDERS
+    assert len(PROVIDERS) >= 2  # at least one real alternative path exists
