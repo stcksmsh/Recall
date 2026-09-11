@@ -642,7 +642,7 @@
       ],
       "verify": [],
       "worker": null,
-      "blocker": "Blocked by design: constraint says do not start before real correction data exists. brain/semantic/corrections/ is currently empty. Unblocks once start-daily-usage produces real review resolutions.",
+      "blocker": "Deps now satisfied (start-daily-usage, wire-phase7-correction-log both done) but still not ready in spirit: 45 real corrections exist (42 accepted, 3 overridden) but 0 are retraction-flavored (wrong-when-made vs update confusion) -- the 3 real overrides are contradiction<->context_dependent_both and context_dependent_both->update disagreements, a different failure mode entirely. Acceptance requires \"a meaningful number of real retraction-labelled examples\" specifically. Stays blocked until real usage produces at least a few of those.",
       "result": null,
       "evidence": null
     },
@@ -925,7 +925,7 @@
     "start-daily-usage": {
       "title": "Begin real daily usage of recall on actual notes/work",
       "plan": "recall-v1",
-      "status": "blocked",
+      "status": "done",
       "dependencies": [],
       "scope": [
         "brain/"
@@ -937,11 +937,44 @@
       "constraints": [
         "Owner-driven: requires the user to actually use the tool; agent cannot fabricate this"
       ],
-      "verify": [],
+      "verify": [
+        {
+          "argv": [
+            "bash",
+            "-lc",
+            "test $(find brain/episodic -name \"*backfill_*.md\" | wc -l) -gt 0"
+          ],
+          "timeout_seconds": 30
+        }
+      ],
       "worker": null,
-      "blocker": "Owner-driven: requires the user to actually capture real notes over multiple days and run a real consolidate. An agent cannot fabricate this without violating decision 0007 (captures are real, append-only, not manufactured to look good).",
-      "result": null,
-      "evidence": null
+      "blocker": null,
+      "result": "Satisfied: brain/episodic/ holds 112 real backfilled captures spanning 2026-05-13 to 2026-09-10 (real conversation history, not fabricated) plus ongoing dogfood captures; recall consolidate run executed twice on that corpus; recall review worked through the full resulting queue (45 resolved: 42 accepted, 3 real overrides, 0 left pending).",
+      "evidence": {
+        "source_hash": "f2b5663ec7b58327dcf6d1182900745b557bf8b7e52a6599529340526ab87778",
+        "contract_hash": "c3c31f44ca512481a07aaf2c16d1ce4138b50295afcb921c44cbfd70ef4a472a",
+        "success": true,
+        "runs": [
+          {
+            "schema_version": 1,
+            "id": "run-z6UaoU",
+            "argv": [
+              "bash",
+              "-lc",
+              "test $(find brain/episodic -name \"*backfill_*.md\" | wc -l) -gt 0"
+            ],
+            "exit_code": 0,
+            "success": true,
+            "timed_out": false,
+            "duration_ms": 40,
+            "stdout": ".ai/runtime/runs/run-z6UaoU/stdout.log",
+            "stderr": ".ai/runtime/runs/run-z6UaoU/stderr.log",
+            "diagnostics": [],
+            "tail": [],
+            "omitted": 0
+          }
+        ]
+      }
     },
     "stop-synthetic-eval": {
       "title": "Decision: freeze hand-authored/synthetic eval-case creation",
@@ -1057,7 +1090,7 @@
   "active_task": null,
   "checkpoint": {
     "task": null,
-    "next_action": "45 review items still pending. retrieval-precision-at-scale is next agent-doable task. start-daily-usage/retraction-classifier-revisit still owner-blocked.",
-    "note": "reviewer_note shipped: optional field on correction records (accept+override, CLI --note, TUI Input). HEAD Recall=<latest>, recall-brain=7f2b3ec. 82 tests pass."
+    "next_action": "retrieval-precision-at-scale is the one clearly ready, agent-doable task. retraction-classifier-revisit stays blocked (deps satisfied but no retraction-flavored corrections yet, 0 of 45). 4 dogfood captures sitting unconsolidated (routine, not urgent).",
+    "note": "start-daily-usage marked done: acceptance genuinely satisfied (112 real backfilled captures + real consolidate runs + full real review resolution, 45 corrections logged: 42 accepted/3 overridden). retraction-classifier-revisit blocker text updated to be precise about WHY it's still not ready (no retraction-pattern examples among the 3 real overrides, not just 'no corrections')."
   }
 }
