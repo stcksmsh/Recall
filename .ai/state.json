@@ -720,7 +720,7 @@
   "active_task": null,
   "checkpoint": {
     "task": null,
-    "next_action": "Owner action: use recall on real notes (start-daily-usage) + resolve real review items so brain/semantic/corrections/ accumulates. Then retraction-classifier-revisit can start. All agent-doable tasks from the 8-item batch are done+pushed (HEAD d049c8e).",
-    "note": "Batch of 8: readme-accuracy, combined-corruption-rate, retraction-limitation-doc (LIMITATIONS.md), stop-synthetic-eval (decision 0008), phase8-polish (recall status + review UX), wire-phase7-correction-log (CLI test) all DONE. start-daily-usage + retraction-classifier-revisit BLOCKED on real usage. recall-status-cmd cancelled (dup). 57 tests pass."
+    "next_action": "All agent-doable AIW tasks cleared (13 total: 10 done, 1 cancelled dup, 2 blocked on owner). Only remaining work is owner-driven: start-daily-usage (capture real notes over days, run consolidate run, resolve review items) which unblocks retraction-classifier-revisit. Nothing else is queued.",
+    "note": "Session did: provider-portability (classify() provider-swappable), dogfood-consolidation (real consolidate run on 12 real captures + eval/DOGFOOD_FINDINGS.md), fix-bm25-invalid-at-leak (real bug found during dogfooding: BM25 path served an invalidated fact as ground truth -- fixed + regression test). recall now aliased on PATH in ~/.config/fish/config.fish. HEAD=5f55d48, 70 tests pass, clean tree."
   }
 }
