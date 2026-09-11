@@ -13,6 +13,12 @@ This block is generated; vendor-specific guidance belongs outside the markers.
 
 # Recall project
 
+**`brain/` is a separate, private git repo** (`github.com/stcksmsh/recall-brain`), checked out
+locally at `./brain/`, gitignored here. This repo (`Recall`) is **public** — never let real
+personal data from `brain/` land in this repo's history (a fact, a test fixture built from real
+captures, a commit message quoting real content). See `.ai/decisions/0009` for why and
+`src/config.py` for the one place `BRAIN_ROOT` is defined.
+
 You are building Recall using two tools you must dogfood:
 
 - **AIW** — the task/decision tracker. `aiw load` first; work the active task; `aiw verify`
