@@ -735,15 +735,15 @@
       ],
       "worker": null,
       "blocker": null,
-      "result": "Fixed src/retrieve/hybrid.py: stopword+single-char token filtering plus a zero-similarity exclusion shrink the false-candidate pool that RRF was fusing; RESULT_SCORE_FLOOR=0.5 relative cutoff in search() drops any fused result scoring below half the top result. Repro fixture (50 facts, 5 disparate topics) in tests/test_retrieve_precision.py and eval/run_retrieval_dilution.py + eval/RETRIEVAL_PRECISION_AT_SCALE.md show 6-10 off-topic padding results per query before, 0 after, with before/after scores. Full suite green (89 passed).",
+      "result": "Revised pass, verified against the real corpus (97 active facts), not just a synthetic fixture. Root cause: RRF fuses by rank only, discarding raw BM25/cosine magnitude that genuinely discriminates (BM25 -15.3 vs -5.3, cosine 0.23 vs 0.11 for the real reported query) -- a fused-score floor (prior pass) is structurally inert against this; fixed by flooring each signal's raw magnitude pre-fusion (RAW_RELATIVE_FLOOR=0.5 in _bm25_candidates/_vector_candidates). Entity/scope anchoring confirmed never-engaged in production (100% unsorted/null) but confirmed NOT the cause of this case (no named entity in the query) -- filed as known limitation, not built. Chose candidate-pool floor over a smarter sufficiency gate because retrieve_and_format() injects every returned fact regardless of the sufficiency flag. 5/6 real spot-check queries (finance/music/education/project-self) now correct and non-padded; 1 genuine lexical-collision case remains (two unrelated real facts sharing one rare content word) -- documented as an unfixed, out-of-scope-for-lexical-matching limitation in LIMITATIONS.md. New eval/retrieval_quality_set/ (synthetic content, public-repo-safe -- caught and fixed a near-miss where real personal financial content was briefly staged for commit) wired into pytest. 90 tests green. Committed in 3 separable steps (investigation, fix, eval+docs), pushed.",
       "evidence": {
-        "source_hash": "cf244139e6af23294aeef37e3035ed9c5d80619b04aa3083718dd5fe48daa521",
+        "source_hash": "ad36f128f5de705315fd961510906f9f8ad5392c99a58f860dca58e72bcb4548",
         "contract_hash": "96ffe907966afe402e7040c7b3cba8077bd28470a5433ad807ee1b84b256c206",
         "success": true,
         "runs": [
           {
             "schema_version": 1,
-            "id": "run-TlQUjQ",
+            "id": "run-qfedlI",
             "argv": [
               ".venv/bin/pytest",
               "-q"
@@ -751,14 +751,14 @@
             "exit_code": 0,
             "success": true,
             "timed_out": false,
-            "duration_ms": 3704,
-            "stdout": ".ai/runtime/runs/run-TlQUjQ/stdout.log",
-            "stderr": ".ai/runtime/runs/run-TlQUjQ/stderr.log",
+            "duration_ms": 3718,
+            "stdout": ".ai/runtime/runs/run-qfedlI/stdout.log",
+            "stderr": ".ai/runtime/runs/run-qfedlI/stderr.log",
             "diagnostics": [],
             "tail": [
               "........................................................................ [ 80%]",
-              ".................                                                        [100%]",
-              "89 passed in 3.43s"
+              "..................                                                       [100%]",
+              "90 passed in 3.44s"
             ],
             "omitted": 0
           }
@@ -1117,7 +1117,7 @@
   "active_task": null,
   "checkpoint": {
     "task": null,
-    "next_action": "retrieval-precision-at-scale is the only ready, agent-doable task. retraction-classifier-revisit stays blocked until a retraction-flavored correction shows up (47 corrections exist, still none of that pattern).",
-    "note": "Clean handoff point: both repos clean+pushed (Recall=13c02ed, recall-brain=07157c4), 85 tests pass, review queue empty (47 corrections logged: real signal now exists). brain/ is a SEPARATE PRIVATE git repo (github.com/stcksmsh/recall-brain) as of decisions/0009 -- nested inside this checkout at ./brain/, its own remote, ignored by this repo's git entirely. Never assume a plain git push here touches it."
+    "next_action": "Pick next ready task via aiw list tasks. retraction-classifier-revisit still blocked in spirit (no retraction-flavored corrections yet).",
+    "note": "retrieval-precision-at-scale revised+done: real-corpus investigation found the prior fixture-only fix didn't generalize (fused-RRF-score floor is structurally inert). Real fix floors each signal's raw magnitude pre-fusion in src/retrieve/hybrid.py. Entity anchoring confirmed never-engaged but not this case's cause -- known limitation. 1 genuine unfixed lexical-collision case documented in LIMITATIONS.md, needs real embeddings. New eval/retrieval_quality_set/ (synthetic, public-repo-safe) wired into pytest, 90 tests green. Caught+fixed a near-miss: real personal financial content was briefly staged for the public repo before commit -- flagged by Bash permission classifier, replaced with synthetic content. 3 commits pushed to Recall master (46e6cd7 investigation, 265612a fix, 57dbb6f eval+docs); 1 capture pushed to brain master. Both repos clean."
   }
 }
