@@ -31,6 +31,20 @@ review_app = typer.Typer(help="Inspect and resolve flagged consolidation decisio
 app.add_typer(review_app, name="review")
 
 
+@review_app.callback(invoke_without_command=True)
+def review_default(ctx: typer.Context):
+    """`recall review` with no subcommand: launch the interactive TUI over pending items.
+    `recall review list/accept/override` (below) still work unchanged for scripting/non-TTY
+    use -- the TUI is a front end over the same review.accept/override calls, not a second
+    data path."""
+    if ctx.invoked_subcommand is not None:
+        return
+    from src.review_tui import launch
+
+    summary = launch()
+    typer.echo(summary.render())
+
+
 @app.command()
 def capture(
     text: str = typer.Argument(None, help="Text to capture. Omit to read from stdin."),

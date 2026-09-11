@@ -87,7 +87,7 @@
     "backfill-import-combined": {
       "title": "Merge + import two historical backfill batches, run real consolidation once",
       "plan": "recall-v1",
-      "status": "in_progress",
+      "status": "done",
       "dependencies": [
         "brain-private-split"
       ],
@@ -117,8 +117,34 @@
       ],
       "worker": null,
       "blocker": null,
-      "result": null,
-      "evidence": null
+      "result": "112 entries (2 batches) merged, 0 collisions/near-dupes, imported to brain/episodic/ by real dates, consolidated once in global chronological order (private recall-brain repo). 71 facts written (65 new/6 update), 41 to review (1 verifier-rerouted). Found+fixed a real crash bug (max_tokens truncation) and filed a real retrieval-dilution finding (retrieval-precision-at-scale) rather than fixing inline. Full report delivered to user.",
+      "evidence": {
+        "source_hash": "11cc83f1ba83220c9a1382b72b0e940b9d998fc9f0bb5b3fd5cd62a8dda67d9b",
+        "contract_hash": "8006800ecc8e69e951adc08b8a78558f9d53f8b89376039ff496e095de3a5ae1",
+        "success": true,
+        "runs": [
+          {
+            "schema_version": 1,
+            "id": "run-xNCBET",
+            "argv": [
+              ".venv/bin/pytest",
+              "-q"
+            ],
+            "exit_code": 0,
+            "success": true,
+            "timed_out": false,
+            "duration_ms": 1288,
+            "stdout": ".ai/runtime/runs/run-xNCBET/stdout.log",
+            "stderr": ".ai/runtime/runs/run-xNCBET/stderr.log",
+            "diagnostics": [],
+            "tail": [
+              "......................................................................   [100%]",
+              "70 passed in 1.05s"
+            ],
+            "omitted": 0
+          }
+        ]
+      }
     },
     "brain-private-split": {
       "title": "Split brain/ into its own private repo (privacy fix)",
@@ -712,6 +738,70 @@
       "result": null,
       "evidence": null
     },
+    "review-tui": {
+      "title": "Interactive textual TUI for the review queue",
+      "plan": "recall-v1",
+      "status": "done",
+      "dependencies": [],
+      "scope": [
+        "src/cli.py",
+        "src/review_tui/",
+        "tests/",
+        "pyproject.toml"
+      ],
+      "acceptance": [
+        "recall review (no subcommand) launches a textual TUI when pending items exist; list/accept/override subcommands keep working unchanged for scripting",
+        "Screen shows: full new-capture content, full conflicting fact + valid_at/scope, classifier classification+confidence+reasoning, extractor_note (labeled non-authoritative) if present, 'item N of M' progress",
+        "Select widget of the 4 classifications defaulted to the classifier's proposal; confirming unchanged = accept, confirming changed = override; a skip/defer action leaves the item untouched and pending",
+        "TUI routes through the existing src.consolidate.review.accept/override functions -- no parallel correction-writing path",
+        "Session summary (accepted/overridden/skipped counts) shown on quit/batch-finish",
+        "Before/after check: one CLI-path accept and one TUI-path accept produce structurally identical correction records",
+        "Full test suite still green"
+      ],
+      "constraints": [
+        "Do not touch Phase 6 internals, classifier logic, or anything outside the review front-end"
+      ],
+      "verify": [
+        {
+          "argv": [
+            ".venv/bin/pytest",
+            "-q"
+          ],
+          "timeout_seconds": 600
+        }
+      ],
+      "worker": null,
+      "blocker": null,
+      "result": "Interactive textual TUI (src/review_tui/) launched by 'recall review' with no subcommand; list/accept/override unchanged. Shows full capture+fact+valid_at/scope+classification+confidence+reasoning+extractor_note(labeled non-authoritative)+progress. Select defaults to classifier proposal; confirm(c) accepts if unchanged else overrides; skip(s) leaves item untouched; session summary on exit. Routes through existing review.accept/override -- no parallel path, verified via live before/after check (identical correction records) + 8 passing tests. textual>=0.60 added to pyproject.toml deps. 78 tests pass.",
+      "evidence": {
+        "source_hash": "2351df5791a226a1ced6999e4b830abad5653e69a1b3a365f0de9d74ab995df5",
+        "contract_hash": "c66edbd8da8d17ca4f05896e0525698abadf406b0870ef96da7374510d8b3ac1",
+        "success": true,
+        "runs": [
+          {
+            "schema_version": 1,
+            "id": "run-ObJlc8",
+            "argv": [
+              ".venv/bin/pytest",
+              "-q"
+            ],
+            "exit_code": 0,
+            "success": true,
+            "timed_out": false,
+            "duration_ms": 1787,
+            "stdout": ".ai/runtime/runs/run-ObJlc8/stdout.log",
+            "stderr": ".ai/runtime/runs/run-ObJlc8/stderr.log",
+            "diagnostics": [],
+            "tail": [
+              "........................................................................ [ 92%]",
+              "......                                                                   [100%]",
+              "78 passed in 1.49s"
+            ],
+            "omitted": 0
+          }
+        ]
+      }
+    },
     "start-daily-usage": {
       "title": "Begin real daily usage of recall on actual notes/work",
       "plan": "recall-v1",
@@ -847,7 +937,7 @@
   "active_task": null,
   "checkpoint": {
     "task": null,
-    "next_action": "All agent-doable AIW tasks cleared (13 total: 10 done, 1 cancelled dup, 2 blocked on owner). Only remaining work is owner-driven: start-daily-usage (capture real notes over days, run consolidate run, resolve review items) which unblocks retraction-classifier-revisit. Nothing else is queued.",
-    "note": "Session did: provider-portability (classify() provider-swappable), dogfood-consolidation (real consolidate run on 12 real captures + eval/DOGFOOD_FINDINGS.md), fix-bm25-invalid-at-leak (real bug found during dogfooding: BM25 path served an invalidated fact as ground truth -- fixed + regression test). recall now aliased on PATH in ~/.config/fish/config.fish. HEAD=5f55d48, 70 tests pass, clean tree."
+    "next_action": "45 review items now pending (41 backfill + 4 leftover dogfood) -- need human accept/override, not auto-resolved (genuine personal-life judgment calls). retrieval-precision-at-scale is the next agent-doable task if picked up. start-daily-usage / retraction-classifier-revisit still owner-blocked.",
+    "note": "Privacy incident + fix this session: brain/ was public (inside stcksmsh/Recall) with no personal data yet; caught via first backfill-import attempt before real personal data landed publicly. Split to private github.com/stcksmsh/recall-brain (decision 0009), full history preserved via git filter-repo, Recall's history rewritten+force-pushed (0 stars/forks, safe). Then ran the actual combined backfill import (112 entries) into the now-private repo. HEAD: Recall=01b85bf, recall-brain=1d3ff16. 70 tests pass."
   }
 }
