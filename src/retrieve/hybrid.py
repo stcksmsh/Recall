@@ -20,6 +20,21 @@ import numpy as np
 
 _TOKEN_RE = re.compile(r"[a-z0-9]+")
 
+# eval/RETRIEVAL_PRECISION_AT_SCALE.md: with no stopword filtering, near-universal words like
+# "user" (present in ~every fact once bodies are phrased "User's ...") turn BM25's OR-match into
+# an almost-unconditional candidate filter, and RRF's rank-only fusion then gives every one of
+# those spurious candidates a score within a few percent of the top result. Filtering common
+# function words before either signal sees the query (and the indexed documents, for TF-IDF) is
+# the cheapest fix that addresses the actual mechanism rather than papering over its output.
+_STOPWORDS = frozenset(
+    """
+    a an the this that these those is are was were be been being to of and or in on at for with
+    about what does do did doesn't don't use uses used using user users it its as by from has have
+    had will would can could should shall i you your yours he she they them their our not no if so
+    but than then there here how when where which who whom me my mine tell know much many
+    """.split()
+)
+
 
 @dataclass
 class RetrievedFact:
@@ -31,7 +46,9 @@ class RetrievedFact:
 
 
 def _tokenize(text: str) -> list[str]:
-    return _TOKEN_RE.findall(text.lower())
+    # len(tok) >= 2 drops single-character tokens too -- "user's" splits into "user", "s" on this
+    # regex, and a bare "s" is exactly as near-universal a false signal as "user" itself.
+    return [tok for tok in _TOKEN_RE.findall(text.lower()) if len(tok) >= 2 and tok not in _STOPWORDS]
 
 
 def _tfidf_matrix(documents: list[str]) -> np.ndarray:
@@ -97,12 +114,27 @@ def _vector_candidates(conn: sqlite3.Connection, query: str, k: int) -> list[tup
     doc_vecs = tfidf[:-1]
 
     similarities = doc_vecs @ query_vec
-    ranked = np.argsort(-similarities)[:k]
+    # A zero-similarity doc shares no vocabulary with the query at all (common once stopwords are
+    # stripped and the query has little content left) -- it is not a "weak match", it is not a
+    # match, and must not occupy a rank slot that RRF would then treat as meaningfully better than
+    # an equally-zero doc ranked lower only by argsort tie-breaking.
+    nonzero = np.flatnonzero(similarities > 0)
+    ranked = nonzero[np.argsort(-similarities[nonzero])][:k]
     return [(ids[i], rank) for rank, i in enumerate(ranked)]
 
 
+# eval/RETRIEVAL_PRECISION_AT_SCALE.md: RRF's rank-only fusion means a fact that only barely
+# qualified as a candidate (e.g. rank 9 of a noisy pool) still scores within ~15% of a fact ranked
+# 0 in both signals -- there is no floor in the fused score itself that reflects "this wasn't a
+# real match, it just wasn't the worst candidate available." Once the stopword fix above removes
+# the mass of spurious candidates, genuine hits and padding separate into a real score gap; this
+# cutoff keeps only the cluster around the top score instead of padding out to k regardless.
+RESULT_SCORE_FLOOR = 0.5  # fraction of the top fused score a result must clear to survive
+
+
 def search(index_db: Path, query: str, *, k: int = 10, rrf_constant: int = 60) -> list[RetrievedFact]:
-    """Fuse BM25 rank and TF-IDF-cosine rank via Reciprocal Rank Fusion, return top-k active facts."""
+    """Fuse BM25 rank and TF-IDF-cosine rank via Reciprocal Rank Fusion, return top-k active facts
+    scoring at least RESULT_SCORE_FLOOR of the top result -- never padded out to k with dregs."""
     conn = sqlite3.connect(index_db)
     try:
         bm25_ranks = dict(_bm25_candidates(conn, query, k * 2))
@@ -117,7 +149,9 @@ def search(index_db: Path, query: str, *, k: int = 10, rrf_constant: int = 60) -
         if not fused_scores:
             return []
 
-        top_ids = sorted(fused_scores, key=fused_scores.get, reverse=True)[:k]
+        ranked_ids = sorted(fused_scores, key=fused_scores.get, reverse=True)
+        cutoff = fused_scores[ranked_ids[0]] * RESULT_SCORE_FLOOR
+        top_ids = [fid for fid in ranked_ids if fused_scores[fid] >= cutoff][:k]
         placeholders = ",".join("?" for _ in top_ids)
         rows = conn.execute(
             f"SELECT id, body, valid_at, scope FROM semantic_facts "

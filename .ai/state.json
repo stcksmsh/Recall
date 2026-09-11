@@ -709,7 +709,7 @@
     "retrieval-precision-at-scale": {
       "title": "Retrieval pads to k with near-zero-relevance facts once the store is topically varied",
       "plan": "recall-v1",
-      "status": "pending",
+      "status": "done",
       "dependencies": [],
       "scope": [
         "src/retrieve/",
@@ -735,8 +735,35 @@
       ],
       "worker": null,
       "blocker": null,
-      "result": null,
-      "evidence": null
+      "result": "Fixed src/retrieve/hybrid.py: stopword+single-char token filtering plus a zero-similarity exclusion shrink the false-candidate pool that RRF was fusing; RESULT_SCORE_FLOOR=0.5 relative cutoff in search() drops any fused result scoring below half the top result. Repro fixture (50 facts, 5 disparate topics) in tests/test_retrieve_precision.py and eval/run_retrieval_dilution.py + eval/RETRIEVAL_PRECISION_AT_SCALE.md show 6-10 off-topic padding results per query before, 0 after, with before/after scores. Full suite green (89 passed).",
+      "evidence": {
+        "source_hash": "cf244139e6af23294aeef37e3035ed9c5d80619b04aa3083718dd5fe48daa521",
+        "contract_hash": "96ffe907966afe402e7040c7b3cba8077bd28470a5433ad807ee1b84b256c206",
+        "success": true,
+        "runs": [
+          {
+            "schema_version": 1,
+            "id": "run-TlQUjQ",
+            "argv": [
+              ".venv/bin/pytest",
+              "-q"
+            ],
+            "exit_code": 0,
+            "success": true,
+            "timed_out": false,
+            "duration_ms": 3704,
+            "stdout": ".ai/runtime/runs/run-TlQUjQ/stdout.log",
+            "stderr": ".ai/runtime/runs/run-TlQUjQ/stderr.log",
+            "diagnostics": [],
+            "tail": [
+              "........................................................................ [ 80%]",
+              ".................                                                        [100%]",
+              "89 passed in 3.43s"
+            ],
+            "omitted": 0
+          }
+        ]
+      }
     },
     "review-tui": {
       "title": "Interactive textual TUI for the review queue",
