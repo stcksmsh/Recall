@@ -5,11 +5,17 @@ backfill-import-combined -- >=50 facts spread across disparate topics."""
 
 from __future__ import annotations
 
+from pathlib import Path
+
+import yaml
+
 from src.consolidate.classifier import ClassificationResult
 from src.consolidate.executor import decide
 from src.index.build import build
 from src.index.flush import flush
 from src.retrieve.hybrid import search
+
+_QUALITY_SET_DIR = Path(__file__).parent.parent / "eval" / "retrieval_quality_set"
 
 _TOPICS = {
     "finance": [
@@ -134,3 +140,37 @@ def test_search_returns_nothing_rather_than_padding_when_no_real_match_exists(tm
     results = search(index_db, "what instrument does the user play", k=10)
 
     assert results == []
+
+
+def test_retrieval_quality_set_cases(tmp_path):
+    """Runs eval/retrieval_quality_set/ (real captured content, real reported query) as a
+    standing pytest regression, not just an ad-hoc script -- see that directory's README."""
+    case_files = sorted(_QUALITY_SET_DIR.glob("case_*.yaml"))
+    assert case_files, "retrieval_quality_set should have at least one case"
+
+    for case_file in case_files:
+        case = yaml.safe_load(case_file.read_text())
+        brain_root = tmp_path / case["id"]
+        expected_content = None
+        for i, fact in enumerate(case["facts"]):
+            result = ClassificationResult("new", 0.9, "no overlap", None)
+            decision = decide(result, capture_id=f"{case['id']}_c{i}", confidence_threshold=0.75)
+            flush(
+                decision,
+                capture_content=fact["content"],
+                captured_at="2026-01-01",
+                brain_root=brain_root,
+                entity="unsorted",
+                scope=None,
+            )
+            if fact.get("is_expected_top_result"):
+                expected_content = fact["content"]
+        assert expected_content is not None, f"{case['id']}: no fact marked is_expected_top_result"
+
+        index_db = build(brain_root=brain_root)
+        results = search(index_db, case["query"], k=10)
+
+        assert results, f"{case['id']}: expected at least one result"
+        assert results[0].body.strip() == expected_content.strip(), (
+            f"{case['id']}: expected top result to be the marked fact, got: {results[0].body!r}"
+        )

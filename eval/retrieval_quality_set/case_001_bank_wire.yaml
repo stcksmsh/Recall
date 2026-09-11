@@ -1,0 +1,50 @@
+# Content below is SYNTHETIC, not real captured content -- see the README's "Privacy note".
+# The real facts that originally surfaced this bug live only in the private brain/ repo and are
+# never copied into Recall's public history; eval/run_retrieval_quality.py investigates against
+# that live real store instead. This case reconstructs the same structural shape (single true
+# match, topically-disparate real-style padding, real observed score dynamics) with placeholder
+# content, so the regression stays public-repo-safe while still testing the real bug pattern.
+id: case_001_bank_wire
+query: "what name did the bank wire transfer end up under?"
+facts:
+  - content: >-
+      After the bank replied that the actual sender on the wire was Northbridge Capital
+      (the brokerage wires internationally under its parent company's name post-merger),
+      corrected the ordering-customer field a second time to 'Northbridge Capital' as the
+      final, bank-confirmed version.
+    is_expected_top_result: true
+  - content: >-
+      Working memory requires recurrence at the B end because holding dynamics active demands
+      it, but if C's selection criterion is itself dynamics-derived then the boundary softens.
+  - content: >-
+      After considering alternatives (RETAINED, DISPOSITION, PROCESSED, DATA SUBJECT, MACHINE
+      READABLE, APPEND-ONLY), landed on calling the immutable episodic tier's records
+      "captures" throughout the docs.
+  - content: >-
+      The conversation concluded that the local university confirmed no formal transfer is
+      possible, and the technical college confirmed no distance-program or transfer spots for
+      next year.
+  - content: >-
+      Build estimate: a few days to two weeks for multimodal front-end plumbing; the bulk of
+      time goes to state management and error handling, not the model call itself.
+  - content: >-
+      Corrected that there is no album called 'The Long Interval' -- the track and the
+      installation piece share a title, not a release.
+  - content: >-
+      Renamed the visualizer from 'HYSTERESIS' to 'SYNTHESIS visualizer', to avoid a name
+      collision with an unrelated existing project.
+  - content: >-
+      Revisited the degree-completion question: formal transfer from the old program was
+      confirmed impossible, and the comparison shifted to a strukovne-studies route versus an
+      academic distance-master route.
+  - content: >-
+      Landed on 'The Long Interval' as the strongest candidate name for the AI-focused music
+      album, built around evolutionary-consciousness and alignment themes.
+notes: >-
+  Original reported symptom: correct fact ranked #1 (RRF score 0.0333) but ranks #2-10 were
+  near-random padding pulled from unrelated topics (cognitive-architecture, education, music),
+  scored within a few percent of the top result, and sufficiency.check() did not flag it. Fixed
+  by flooring each signal's raw match strength (BM25 raw magnitude, cosine similarity) before
+  rank/RRF fusion discards it -- see src/retrieve/hybrid.py RAW_RELATIVE_FLOOR. Verified against
+  the real store's real content via eval/run_retrieval_quality.py before writing this synthetic,
+  public-repo-safe version.

@@ -43,6 +43,32 @@ corrections from actual usage (`wire-phase7-correction-log`) and then revisit a 
 retraction check trained on that data (`retraction-classifier-revisit`) — not before, because
 there is no non-synthetic training signal yet.
 
+## Retrieval: lexical collision and entity anchoring (retrieval-precision-at-scale)
+
+**What can get through:** `search()` (`src/retrieve/hybrid.py`) is pure lexical matching (BM25 +
+TF-IDF cosine, no semantic embeddings — a deliberate v1 simplification, see the module docstring).
+When two facts in the real corpus are topically unrelated but happen to share one rare content
+word (e.g. "threshold" used once in a Recall-architecture note and once in an unrelated
+philosophy-of-mind note, 2 of 121 real facts total), BM25's IDF weighting can rank the wrong fact
+#1 — a single rare-term match can outweigh a genuinely relevant fact matching several more common
+terms. Confirmed on the real corpus; see `eval/RETRIEVAL_PRECISION_AT_SCALE.md` Part 2.
+
+This is different from (and found while investigating) the dilution/padding bug the task was filed
+to fix — that one is fixed: `search()` no longer pads its result set with near-random facts from
+unrelated topics for the general case. This lexical-collision case is a real, narrower miss that
+survives the fix, and needs real (semantic) embeddings to close — no purely lexical scoring change
+can distinguish two unrelated uses of the same word.
+
+**Entity/scope anchoring has never engaged in production.** BUILD_PLAN.md's intended *primary*
+retrieval path (`src/retrieve/entity_scope.py`) is confirmed still a pass-through: 100% of real
+facts have `entity="unsorted"`, `scope=null`, and nothing in the write path or CLI ever populates
+or supplies a real value automatically — hybrid similarity search has carried 100% of real
+retrieval load alone. Not the cause of the padding/dilution bug (that reported query contained no
+named entity to anchor on either way), but a real structural gap worth closing eventually — a
+cheap heuristic (proper-noun/capitalized-term extraction, or `scope` as a controlled vocabulary)
+was considered and not built here, since `scope` currently has zero real values to match against
+and it would not have fixed the case that prompted this investigation.
+
 ## Classifier accuracy generally
 
 The write-time classifier runs at ~60% on the 76-case real set (`eval/PHASE2_V2_BASELINE.md`),
