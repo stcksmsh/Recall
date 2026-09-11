@@ -27,7 +27,7 @@
       "plan": "recall-v1",
       "status": "pending",
       "dependencies": [
-        "recall-status-cmd"
+        "phase8-polish"
       ],
       "scope": [
         "src/inject/",
