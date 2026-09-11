@@ -30,8 +30,10 @@ _STOPWORDS = frozenset(
     """
     a an the this that these those is are was were be been being to of and or in on at for with
     about what does do did doesn't don't use uses used using user users it its as by from has have
-    had will would can could should shall i you your yours he she they them their our not no if so
-    but than then there here how when where which who whom me my mine tell know much many
+    had will would can could should shall i you your yours he she they them their our we us ours
+    myself yourself himself herself itself ourselves yourselves themselves not no if so
+    but than then there here how why when where which who whom whose whether me my mine tell know
+    much many
     """.split()
 )
 
@@ -77,6 +79,17 @@ def _tfidf_matrix(documents: list[str]) -> np.ndarray:
     return matrix / norms
 
 
+# eval/RETRIEVAL_PRECISION_AT_SCALE.md (revisited against the real corpus, not just a synthetic
+# fixture): a floor on the *fused RRF score* does not work, because RRF fuses by rank position
+# only, and adjacent ranks are always within a few percent of each other by construction of
+# 1/(rrf_constant+rank) -- regardless of how large the real relevance gap is. On the real store, a
+# query with a single true match showed raw BM25 -15.3 vs -5.3 for the #2 candidate (3x) and raw
+# cosine 0.27 vs 0.12 (2.2x) -- a large, genuine gap -- but converting both to rank-0/rank-1 before
+# fusion flattened that into a ~2% RRF score difference. The floor has to act on each signal's raw
+# magnitude, before rank/fusion erases it, or it has nothing real to act on.
+RAW_RELATIVE_FLOOR = 0.5  # a candidate must be at least half as strong (by raw magnitude) as the best candidate on that signal to be considered at all
+
+
 def _bm25_candidates(conn: sqlite3.Connection, query: str, k: int) -> list[tuple[str, float]]:
     # semantic_facts_fts (src/index/build.py) indexes every fact's body unconditionally —
     # invalidated ones included, it carries no invalid_at column of its own. It is NOT
@@ -90,14 +103,20 @@ def _bm25_candidates(conn: sqlite3.Connection, query: str, k: int) -> list[tuple
     # exact adjacency. Each token individually quoted so FTS5 doesn't choke on stray syntax.
     match_query = " OR ".join(f'"{tok}"' for tok in tokens)
     rows = conn.execute(
-        "SELECT semantic_facts_fts.id, bm25(semantic_facts_fts) AS rank FROM semantic_facts_fts "
+        "SELECT semantic_facts_fts.id, bm25(semantic_facts_fts) AS raw FROM semantic_facts_fts "
         "JOIN semantic_facts ON semantic_facts.id = semantic_facts_fts.id "
         "WHERE semantic_facts_fts MATCH ? AND semantic_facts.invalid_at IS NULL "
-        "ORDER BY rank LIMIT ?",
+        "ORDER BY raw LIMIT ?",
         (match_query, k),
     ).fetchall()
-    # SQLite's bm25() returns *lower is better*; rank position is what RRF actually wants.
-    return [(row[0], i) for i, row in enumerate(rows)]
+    if not rows:
+        return []
+    # SQLite's bm25() returns *lower (more negative) is better*; magnitude reflects real match
+    # strength (see module-level comment), so filter on it before collapsing to rank position.
+    best_magnitude = abs(rows[0][1])
+    floor = best_magnitude * RAW_RELATIVE_FLOOR
+    kept = [row for row in rows if abs(row[1]) >= floor]
+    return [(row[0], i) for i, row in enumerate(kept)]
 
 
 def _vector_candidates(conn: sqlite3.Connection, query: str, k: int) -> list[tuple[str, float]]:
@@ -117,24 +136,22 @@ def _vector_candidates(conn: sqlite3.Connection, query: str, k: int) -> list[tup
     # A zero-similarity doc shares no vocabulary with the query at all (common once stopwords are
     # stripped and the query has little content left) -- it is not a "weak match", it is not a
     # match, and must not occupy a rank slot that RRF would then treat as meaningfully better than
-    # an equally-zero doc ranked lower only by argsort tie-breaking.
+    # an equally-zero doc ranked lower only by argsort tie-breaking. Beyond that, a real relevance
+    # floor: a candidate must be within RAW_RELATIVE_FLOOR of the single best cosine similarity, so
+    # a weak echo of the query doesn't ride along just because it wasn't literally zero.
     nonzero = np.flatnonzero(similarities > 0)
-    ranked = nonzero[np.argsort(-similarities[nonzero])][:k]
+    if nonzero.size == 0:
+        return []
+    best_sim = similarities[nonzero].max()
+    strong = nonzero[similarities[nonzero] >= best_sim * RAW_RELATIVE_FLOOR]
+    ranked = strong[np.argsort(-similarities[strong])][:k]
     return [(ids[i], rank) for rank, i in enumerate(ranked)]
 
 
-# eval/RETRIEVAL_PRECISION_AT_SCALE.md: RRF's rank-only fusion means a fact that only barely
-# qualified as a candidate (e.g. rank 9 of a noisy pool) still scores within ~15% of a fact ranked
-# 0 in both signals -- there is no floor in the fused score itself that reflects "this wasn't a
-# real match, it just wasn't the worst candidate available." Once the stopword fix above removes
-# the mass of spurious candidates, genuine hits and padding separate into a real score gap; this
-# cutoff keeps only the cluster around the top score instead of padding out to k regardless.
-RESULT_SCORE_FLOOR = 0.5  # fraction of the top fused score a result must clear to survive
-
-
 def search(index_db: Path, query: str, *, k: int = 10, rrf_constant: int = 60) -> list[RetrievedFact]:
-    """Fuse BM25 rank and TF-IDF-cosine rank via Reciprocal Rank Fusion, return top-k active facts
-    scoring at least RESULT_SCORE_FLOOR of the top result -- never padded out to k with dregs."""
+    """Fuse BM25 rank and TF-IDF-cosine rank via Reciprocal Rank Fusion, over candidate pools each
+    already floored to RAW_RELATIVE_FLOOR of that signal's own best raw match -- so a fact absent
+    from both real-relevance pools never gets a rank slot to be padded in with."""
     conn = sqlite3.connect(index_db)
     try:
         bm25_ranks = dict(_bm25_candidates(conn, query, k * 2))
@@ -149,9 +166,7 @@ def search(index_db: Path, query: str, *, k: int = 10, rrf_constant: int = 60) -
         if not fused_scores:
             return []
 
-        ranked_ids = sorted(fused_scores, key=fused_scores.get, reverse=True)
-        cutoff = fused_scores[ranked_ids[0]] * RESULT_SCORE_FLOOR
-        top_ids = [fid for fid in ranked_ids if fused_scores[fid] >= cutoff][:k]
+        top_ids = sorted(fused_scores, key=fused_scores.get, reverse=True)[:k]
         placeholders = ",".join("?" for _ in top_ids)
         rows = conn.execute(
             f"SELECT id, body, valid_at, scope FROM semantic_facts "
