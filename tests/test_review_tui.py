@@ -187,6 +187,45 @@ def test_tui_changing_selection_before_confirm_overrides(tmp_path):
     assert c["correct_classification"] == "contradiction"
 
 
+async def _drive_typed_note_then_enter(app: ReviewApp):
+    from textual.widgets import Input
+
+    async with app.run_test() as pilot:
+        note_input = app.query_one("#reviewer_note", Input)
+        note_input.focus()
+        await pilot.pause()
+        await pilot.press(*"good call, keep it")
+        await pilot.press("enter")  # submitting the note field itself confirms
+
+
+def test_tui_note_input_reaches_the_correction_record(tmp_path):
+    brain_root = tmp_path / "brain"
+    _make_review_item(brain_root, classification="update", confidence=0.5, capture_id="c1")
+
+    items = list_pending(brain_root=brain_root)
+    app = ReviewApp(items, brain_root=brain_root)
+
+    asyncio.run(_drive_typed_note_then_enter(app))
+
+    assert app.summary.accepted == 1  # selection was never changed, only the note was typed
+    c = _only_correction(brain_root)
+    assert c["reviewer_note"] == "good call, keep it"
+
+
+def test_tui_blank_note_records_null_not_empty_string(tmp_path):
+    brain_root = tmp_path / "brain"
+    _make_review_item(brain_root, classification="update", confidence=0.5, capture_id="c1")
+    _make_review_item(brain_root, classification="contradiction", confidence=0.99, capture_id="c2")
+
+    items = list_pending(brain_root=brain_root)
+    app = ReviewApp(items, brain_root=brain_root)
+
+    asyncio.run(_drive_confirm_then_skip_then_quit(app))  # first item: plain 'c', no note typed
+
+    c = _only_correction(brain_root)
+    assert c["reviewer_note"] is None
+
+
 runner = CliRunner()
 
 

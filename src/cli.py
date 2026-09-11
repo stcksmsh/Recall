@@ -128,9 +128,14 @@ def review_list():
 
 
 @review_app.command("accept")
-def review_accept(review_id: str = typer.Argument(..., help="Review item id from `recall review list`.")):
+def review_accept(
+    review_id: str = typer.Argument(..., help="Review item id from `recall review list`."),
+    note: str = typer.Option(
+        None, "--note", help="Optional reason this was right, recorded on the correction record."
+    ),
+):
     """Confirm the classifier's original classification and apply its action."""
-    path = do_review_accept(review_id)
+    path = do_review_accept(review_id, reviewer_note=note)
     typer.echo(f"Accepted -> {path}" if path else "Accepted (no fact written — see justification).")
 
 
@@ -140,9 +145,12 @@ def review_override(
     classification: str = typer.Argument(
         ..., help="new|update|contradiction|context_dependent_both — the correct classification."
     ),
+    note: str = typer.Option(
+        None, "--note", help="Optional reason the classifier was wrong, recorded on the correction record."
+    ),
 ):
     """Supply the correct classification and apply its action instead of the classifier's."""
-    path = do_review_override(review_id, classification)
+    path = do_review_override(review_id, classification, reviewer_note=note)
     typer.echo(f"Overridden -> {path}" if path else "Overridden (no fact written — see justification).")
 
 

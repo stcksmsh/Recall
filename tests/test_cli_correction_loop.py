@@ -64,3 +64,29 @@ def test_cli_review_accept_appends_labelled_correction(tmp_path, monkeypatch):
     assert c["classification_given"] == "context_dependent_both"
     assert c["confidence_given"] == 0.7
     assert c["correct_classification"] == "context_dependent_both"  # accept = confirmation label
+
+
+def test_cli_review_override_with_note_records_reviewer_note(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    brain_root = tmp_path / "brain"
+    review_id = _seed_review_item(brain_root, classification="update", confidence=0.42)
+
+    result = runner.invoke(
+        app, ["review", "override", review_id, "contradiction", "--note", "classifier missed the retraction cue"]
+    )
+    assert result.exit_code == 0, result.output
+
+    c = _only_correction(brain_root)
+    assert c["reviewer_note"] == "classifier missed the retraction cue"
+
+
+def test_cli_review_accept_without_note_leaves_it_null(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    brain_root = tmp_path / "brain"
+    review_id = _seed_review_item(brain_root, classification="update", confidence=0.42)
+
+    result = runner.invoke(app, ["review", "accept", review_id])
+    assert result.exit_code == 0, result.output
+
+    c = _only_correction(brain_root)
+    assert c["reviewer_note"] is None

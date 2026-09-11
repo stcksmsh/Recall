@@ -802,6 +802,68 @@
         ]
       }
     },
+    "reviewer-note": {
+      "title": "Optional reviewer_note on accept/override, recorded on the correction only",
+      "plan": "recall-v1",
+      "status": "done",
+      "dependencies": [],
+      "scope": [
+        "src/consolidate/corrections.py",
+        "src/consolidate/review.py",
+        "src/cli.py",
+        "src/review_tui/",
+        "tests/"
+      ],
+      "acceptance": [
+        "record_correction() takes an optional reviewer_note; always written to the correction record (null when absent), not mirrored onto the review-queue item file",
+        "review.accept()/override() and 'recall review accept/override --note' thread it through",
+        "TUI has a text input for it, empty by default, visible for both confirm outcomes (accept and override)",
+        "Full test suite still green"
+      ],
+      "constraints": [
+        "Additive only: existing 4-field correction contract unchanged, just one new optional field"
+      ],
+      "verify": [
+        {
+          "argv": [
+            ".venv/bin/pytest",
+            "-q"
+          ],
+          "timeout_seconds": 600
+        }
+      ],
+      "worker": null,
+      "blocker": null,
+      "result": "Optional reviewer_note added to record_correction() (accept+override, both paths threaded through review.py); CLI --note flag; TUI Input widget (reset per item, Enter-submits-and-confirms). Stored on the correction record only, per owner's answer. 4 new tests (82 total pass).",
+      "evidence": {
+        "source_hash": "5a6b26afbb173ace1740ab64f694777d302b49928617f05fcf11f81592f6b237",
+        "contract_hash": "75e8e3f3f68b731a7d62c06442206e117a8dd7b8c3626a56c26f7875c4d40ca6",
+        "success": true,
+        "runs": [
+          {
+            "schema_version": 1,
+            "id": "run-vfLzrr",
+            "argv": [
+              ".venv/bin/pytest",
+              "-q"
+            ],
+            "exit_code": 0,
+            "success": true,
+            "timed_out": false,
+            "duration_ms": 3737,
+            "stdout": ".ai/runtime/runs/run-vfLzrr/stdout.log",
+            "stderr": ".ai/runtime/runs/run-vfLzrr/stderr.log",
+            "diagnostics": [],
+            "tail": [
+              "........................................................................ [ 87%]",
+              "..........                                                               [100%]",
+              "82 passed in 3.42s"
+            ],
+            "omitted": 0
+          }
+        ]
+      }
+    },
     "start-daily-usage": {
       "title": "Begin real daily usage of recall on actual notes/work",
       "plan": "recall-v1",
@@ -937,7 +999,7 @@
   "active_task": null,
   "checkpoint": {
     "task": null,
-    "next_action": "45 review items now pending (41 backfill + 4 leftover dogfood) -- need human accept/override, not auto-resolved (genuine personal-life judgment calls). retrieval-precision-at-scale is the next agent-doable task if picked up. start-daily-usage / retraction-classifier-revisit still owner-blocked.",
-    "note": "Privacy incident + fix this session: brain/ was public (inside stcksmsh/Recall) with no personal data yet; caught via first backfill-import attempt before real personal data landed publicly. Split to private github.com/stcksmsh/recall-brain (decision 0009), full history preserved via git filter-repo, Recall's history rewritten+force-pushed (0 stars/forks, safe). Then ran the actual combined backfill import (112 entries) into the now-private repo. HEAD: Recall=01b85bf, recall-brain=1d3ff16. 70 tests pass."
+    "next_action": "45 review items still pending (owner's real judgment calls) -- run 'recall review' to work through them with the new TUI. retrieval-precision-at-scale is next agent-doable task if picked up. start-daily-usage/retraction-classifier-revisit still owner-blocked.",
+    "note": "review-tui shipped: textual TUI for recall review, routes through existing accept/override, verified structurally-identical correction records. HEAD Recall=e047dfc, recall-brain=29ea71b. 78 tests pass."
   }
 }

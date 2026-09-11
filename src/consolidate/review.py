@@ -74,6 +74,7 @@ def _resolve(
     correct_classification: str,
     status: str,
     brain_root: Path,
+    reviewer_note: str | None = None,
 ) -> Path | None:
     record_correction(
         review_item_id=item.id,
@@ -83,6 +84,7 @@ def _resolve(
         classification_given=item.classification_given,
         confidence_given=item.confidence_given,
         correct_classification=correct_classification,
+        reviewer_note=reviewer_note,
         brain_root=brain_root,
     )
 
@@ -115,15 +117,30 @@ def _resolve(
     return fact_path
 
 
-def accept(review_id: str, *, brain_root: Path = BRAIN_ROOT) -> Path | None:
-    """Confirm the classifier's original classification was correct and apply its action."""
+def accept(
+    review_id: str, *, reviewer_note: str | None = None, brain_root: Path = BRAIN_ROOT
+) -> Path | None:
+    """Confirm the classifier's original classification was correct and apply its action.
+    reviewer_note is optional free text recorded on the correction only -- why this was right,
+    if that's worth writing down."""
     item = _find_pending(review_id, brain_root)
-    return _resolve(item, correct_classification=item.classification_given, status="accepted", brain_root=brain_root)
+    return _resolve(
+        item, correct_classification=item.classification_given, status="accepted",
+        brain_root=brain_root, reviewer_note=reviewer_note,
+    )
 
 
-def override(review_id: str, correct_classification: str, *, brain_root: Path = BRAIN_ROOT) -> Path | None:
-    """Supply the classification the classifier should have given, and apply its action instead."""
+def override(
+    review_id: str, correct_classification: str, *, reviewer_note: str | None = None,
+    brain_root: Path = BRAIN_ROOT,
+) -> Path | None:
+    """Supply the classification the classifier should have given, and apply its action instead.
+    reviewer_note is optional free text recorded on the correction only -- why the classifier
+    was wrong, if that's worth writing down."""
     if correct_classification not in VALID_CLASSIFICATIONS:
         raise ValueError(f"Invalid classification: {correct_classification!r}")
     item = _find_pending(review_id, brain_root)
-    return _resolve(item, correct_classification=correct_classification, status="overridden", brain_root=brain_root)
+    return _resolve(
+        item, correct_classification=correct_classification, status="overridden",
+        brain_root=brain_root, reviewer_note=reviewer_note,
+    )

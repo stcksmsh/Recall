@@ -11,7 +11,7 @@ from pathlib import Path
 from textual.app import App, ComposeResult
 from textual.binding import Binding
 from textual.containers import VerticalScroll
-from textual.widgets import Footer, Header, Select, Static
+from textual.widgets import Footer, Header, Input, Select, Static
 
 from src.consolidate import review
 from src.consolidate.classifier import VALID_CLASSIFICATIONS
@@ -45,15 +45,19 @@ class SessionSummary:
         )
 
 
-def resolve_item(item: ReviewItem, selected: str, *, brain_root: Path = BRAIN_ROOT) -> str:
+def resolve_item(
+    item: ReviewItem, selected: str, *, reviewer_note: str | None = None,
+    brain_root: Path = BRAIN_ROOT,
+) -> str:
     """The one place a confirm becomes a write -- same accept/override functions the CLI calls.
     Accept when the selection still matches the classifier's own proposal (a deliberate
-    confirmation, not a silent default), override when it was changed. Returns "accepted" or
+    confirmation, not a silent default), override when it was changed. reviewer_note is optional
+    free text, for either outcome, recorded on the correction only. Returns "accepted" or
     "overridden"."""
     if selected == item.classification_given:
-        review.accept(item.id, brain_root=brain_root)
+        review.accept(item.id, reviewer_note=reviewer_note, brain_root=brain_root)
         return "accepted"
-    review.override(item.id, selected, brain_root=brain_root)
+    review.override(item.id, selected, reviewer_note=reviewer_note, brain_root=brain_root)
     return "overridden"
 
 
@@ -65,6 +69,7 @@ class ReviewApp(App):
     #reasoning { padding: 0 1 1 1; color: $text-muted; }
     #extractor_note { padding: 0 1 1 1; color: $warning; }
     #classification_select { margin: 0 1; width: 50; }
+    #reviewer_note { margin: 1 1 0 1; width: 76; }
     """
 
     BINDINGS = [
@@ -92,11 +97,19 @@ class ReviewApp(App):
             yield Select(
                 [(c, c) for c in CLASSIFICATIONS], id="classification_select", allow_blank=False,
             )
+            yield Input(placeholder="optional note: why this call? (blank is fine)", id="reviewer_note")
         yield Footer()
 
     def on_mount(self) -> None:
         self.title = "recall review"
         self._show_current()
+        self.query_one("#classification_select", Select).focus()
+
+    def on_input_submitted(self, event: Input.Submitted) -> None:
+        # Enter in the note field confirms too -- typing a note then hitting Enter is one
+        # motion, not "type note, tab away, press c".
+        if event.input.id == "reviewer_note":
+            self.action_confirm()
 
     def _show_current(self) -> None:
         if self.index >= len(self.items):
@@ -140,13 +153,15 @@ class ReviewApp(App):
 
         select = self.query_one("#classification_select", Select)
         select.value = item.classification_given
+        self.query_one("#reviewer_note", Input).value = ""
 
     def action_confirm(self) -> None:
         if self.index >= len(self.items):
             return
         item = self.items[self.index]
         selected = self.query_one("#classification_select", Select).value
-        outcome = resolve_item(item, selected, brain_root=self.brain_root)
+        note = self.query_one("#reviewer_note", Input).value.strip() or None
+        outcome = resolve_item(item, selected, reviewer_note=note, brain_root=self.brain_root)
         if outcome == "accepted":
             self.summary.accepted += 1
         else:
