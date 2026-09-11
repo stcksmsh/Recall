@@ -15,14 +15,21 @@ session start it would make every agent session slow and non-deterministic — t
 AIW's "cheap deterministic recovery" contract. This is the same principle as
 [0002](0002-write-time-cost-discipline.md), applied at the integration seam.
 
-## Status in codebase — NO CONFLICT; NOT YET IMPLEMENTED
-- There is currently **no AIW integration in Recall's code** — no reader, no hook, nothing.
-- This repo now contains AIW's own files under `.ai/`, `.agents/`, `.codex/`, `.claude/`. They
-  are separate from `brain/`; Recall's consolidation writes only to `brain/`, so the read-only
-  boundary holds by construction as long as that separation is kept.
+## Status in codebase — MATCHES
+- The AIW side is still read-only by construction: no AIW-specific reader exists (Recall does
+  not read `.ai/` at all), and Recall's consolidation writes only to `brain/`.
+- The other half — the session-start-safe boundary on Recall's *own* read path — is now
+  implemented: `recall inject --for-session` (`src/inject/session_start.py`) reads only
+  `brain/semantic/facts/` Markdown, makes zero network or model calls (the module imports
+  nothing that could), and writes nothing anywhere — no index build, unlike the query-time
+  `recall retrieve` path. Measured < 150ms at 100 facts (`tests/test_session_start.py`).
+- This repo contains AIW's own files under `.ai/`, `.agents/`, `.codex/`, `.claude/`, separate
+  from `brain/`.
 - Consistent with `BUILD_PLAN.md` §7: "Scheduled/automatic consolidation triggers — manual
   invocation is fine until the manual version is trusted."
-- Tracked as task **aiw-readonly-integration** under plan `recall-v1`.
+- Task **aiw-readonly-integration** (plan `recall-v1`) implemented this. Not yet done: actually
+  wiring `recall inject --for-session` into a `.claude/`/`.codex/` hook — out of scope for that
+  task by its own constraint ("just the readable command").
 
 ## Conflicts / gaps
 None with baked decisions. This is a forward constraint on work not yet done.

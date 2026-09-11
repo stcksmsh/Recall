@@ -25,7 +25,7 @@
     "aiw-readonly-integration": {
       "title": "Read-only AIW consolidated-tier reader for a session-start hook",
       "plan": "recall-v1",
-      "status": "pending",
+      "status": "done",
       "dependencies": [
         "phase8-polish"
       ],
@@ -55,8 +55,34 @@
       ],
       "worker": null,
       "blocker": null,
-      "result": null,
-      "evidence": null
+      "result": "recall inject --for-session (src/inject/session_start.py) reads brain/semantic/facts/ Markdown directly -- no SQLite index, no build(), no writes, no network/model call. Measured <150ms @ 100 facts. Decision 0006 status updated to MATCHES. 8 new tests, 69 total pass.",
+      "evidence": {
+        "source_hash": "568a4b45488165842bd93a7d9e584ec6e62fdaa614c48c2135482768797b32b1",
+        "contract_hash": "42c16ea5da74a61a1859688a11c14c41dde5580b154ba38f1b39c8cb037bd09d",
+        "success": true,
+        "runs": [
+          {
+            "schema_version": 1,
+            "id": "run-2jFKqD",
+            "argv": [
+              ".venv/bin/pytest",
+              "-q"
+            ],
+            "exit_code": 0,
+            "success": true,
+            "timed_out": false,
+            "duration_ms": 1246,
+            "stdout": ".ai/runtime/runs/run-2jFKqD/stdout.log",
+            "stderr": ".ai/runtime/runs/run-2jFKqD/stderr.log",
+            "diagnostics": [],
+            "tail": [
+              ".....................................................................    [100%]",
+              "69 passed in 0.98s"
+            ],
+            "omitted": 0
+          }
+        ]
+      }
     },
     "combined-corruption-rate": {
       "title": "End-to-end silent-corruption rate: classifier gate + verifier together",

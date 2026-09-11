@@ -133,6 +133,24 @@ def review_override(
 
 
 @app.command()
+def inject(
+    for_session: bool = typer.Option(
+        False, "--for-session",
+        help="Emit every active semantic fact, injection-formatted, for a session-start hook."
+    ),
+):
+    """Read-only context for a session-start hook: brain/semantic/ only, no query, no index
+    build. Zero network calls, zero model calls, zero writes — see src/inject/session_start.py
+    and .ai/decisions/0006 (Recall never writes .ai/; a session-start path stays cheap and local)."""
+    if not for_session:
+        typer.echo("recall inject: pass --for-session (the only mode today).", err=True)
+        raise typer.Exit(code=1)
+    from src.inject.session_start import render_for_session
+
+    typer.echo(render_for_session())
+
+
+@app.command()
 def retrieve(
     query: str = typer.Argument(..., help="Query text."),
     entity: str = typer.Option(None, help="Filter to a specific entity (once entity resolution exists)."),
