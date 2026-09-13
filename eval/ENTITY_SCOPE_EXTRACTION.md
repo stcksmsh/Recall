@@ -46,22 +46,66 @@ would have landed as `entity="unsorted"`, `scope=None` — indistinguishable.
 
 ## Acceptance 2: `eval/run_retrieval_quality_set.py` re-run
 
-**Score: 0.03333 → 0.03333. Unchanged.** This is the expected, correct result here, not a sign the
-fix didn't land — and confirming *why* matters more than the number:
+**Score: 0.03333 → 0.03333. Does not move. Stated plainly, not framed as expected: re-running this
+exact script produces the identical number before and after this fix, full stop.**
 
-`run_retrieval_quality_set.py`'s own harness calls `src.index.flush.flush()` directly with
-`entity="unsorted", scope=None` hardcoded in the script (line 48-49), and asserts against
-`src.retrieve.hybrid.search()` directly — it never goes through `src.capture.capture()`,
-`src.consolidate.run.run()`, or `src.retrieve.entity_scope.by_entity_or_scope()`, i.e. it never
-touches any of the three places this fix lives. It is a regression test for `hybrid.py`'s
-BM25/TF-IDF precision (retrieval-precision-at-scale, a prior task, unrelated component) and is
-*structurally incapable* of reflecting an entity/scope change, no matter how correct that change
-is. Re-running it was still worth doing per the task brief's own logic — it's a cheap, real check
-that the fix hasn't regressed the hybrid-search path it does cover — but it is the wrong instrument
-to evaluate this fix by. Acceptance 1 above (the cross-project test, run through the real capture →
-consolidate pipeline this fix actually modifies) is the real empirical check, and it passed. The
-real corpus's already-written 97 facts also don't move (episodic capture is append-only; this fix
-is prospective, not retroactive — see the addendum in `eval/RETRIEVAL_PRECISION_AT_SCALE.md`).
+The reason is structural, verified by backfilling a *copy* of the real store (never the live one)
+and re-running the same check against it — see `eval/run_entity_scope_backfill_probe.py` and
+"Backfill test" below. `run_retrieval_quality_set.py`'s own harness calls `src.index.flush.flush()`
+directly with `entity="unsorted", scope=None` hardcoded in the script (lines 48-49), builds its
+fixture in a throwaway `tempfile.mkdtemp()`, and asserts against `src.retrieve.hybrid.search()`
+directly. It never calls `src.capture.capture()`, `src.consolidate.run.run()`, or
+`src.retrieve.entity_scope.by_entity_or_scope()` — the three places this fix actually lives — and
+it never reads `brain/` (real or copied) at all. No backfill of any store, real or copied, can move
+this number: the script doesn't read a store. Confirmed by running it against a backfilled copy
+below; the score was identical for that reason, not because the fix doesn't work.
+
+Acceptance 1 above (the cross-project test, run through the real `capture()` → `consolidate.run()`
+pipeline this fix actually modifies) is the correct empirical check, and it passed.
+
+## Backfill test: did this fix touch the existing 121 facts?
+
+**No.** Confirmed directly: `entity="unsorted"` on all 121 pre-existing facts, unchanged, before and
+after this task (`grep`-equivalent check: 0/121 have a non-`"unsorted"` entity as of this fix
+shipping). `entity_extract.py` only runs in `src/consolidate/run.py`'s auto-apply loop and
+`src/consolidate/review.py`'s human-resolve path — both operate on *new* captures / pending review
+items, never re-scan already-written facts. This is by construction, not an oversight: the
+episodic tier is immutable/append-only, and there is no code path that re-derives an existing
+fact's frontmatter after the fact is written. **This fix is prospective only.**
+
+To measure what backfilling *would* do, `eval/run_entity_scope_backfill_probe.py` copies the real
+`brain/` to a scratch tempdir (real `brain/` is never touched), re-derives `entity` for all 121
+existing facts from each fact's source episodic capture content, and reports:
+
+```
+total facts: 121
+entity changed from 'unsorted' to something else: 11
+stayed 'unsorted' (no identifier-like token in source capture): 110
+distinct non-unsorted entities assigned: 9
+entities assigned to >1 fact, INCLUDING already-invalidated facts: {'rocars': 2, 'invalid_at': 2}
+LIVE collisions in the current active corpus: none — every raw collision above turned out to be
+one active fact plus one already-invalidated/superseded fact, which real retrieval already
+excludes regardless of entity/scope.
+```
+
+So: entity backfill alone would move 11/121 facts off `"unsorted"`, but (a) **`scope` cannot be
+backfilled at all** — historical episodic captures were written before this task added the
+`project` field to `capture()`, so there is no project signal to recover for them; a content-based
+guess at "which project was this" would be exactly the guessing the task brief said not to do —
+and (b) there is currently no *live* pair of active facts sharing a backfilled entity name in this
+corpus, so even with scope somehow reconstructed, there is nothing measurable to separate today.
+Re-running `run_retrieval_quality_set.py` against this backfilled copy still produces 0.03333,
+confirmed directly, for the structural reason above.
+
+**Conclusion, stated directly: no eval score moves from this fix today, on the current real corpus
+or via backfill, because (a) the one score requested is structurally incapable of reading any store
+at all, and (b) the real corpus has no live entity collision to separate yet even after backfilling
+what can be backfilled (entity, not scope).** The fix is real and verified through the mechanism
+that actually exercises it (Acceptance 1, and this probe's `by_entity_or_scope` checks), not through
+this score. A full historical backfill was deliberately not applied to the live store — see the
+`--all` / `--since-revision` scope flag on `recall import-aiw` for the analogous decision on the
+AIW-import side; the same "don't silently backfill" posture applies here too, and no backfill
+tooling for existing *facts* (as opposed to AIW tasks) has been built or run.
 
 ## Caveats
 

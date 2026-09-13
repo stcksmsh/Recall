@@ -24,12 +24,95 @@ def _done_task(title="Some finished task", result="It works.", source_hash="abc1
     }
 
 
+def test_mode_is_required_and_validated(tmp_path):
+    state_path = tmp_path / "state.json"
+    _write_state(state_path, {"task-a": _done_task()})
+    brain_root = tmp_path / "brain"
+
+    with pytest.raises(ValueError, match="mode"):
+        import_done_tasks(mode="bogus", state_path=state_path, brain_root=brain_root)
+
+    with pytest.raises(ValueError, match="since_revision"):
+        import_done_tasks(mode="since-revision", state_path=state_path, brain_root=brain_root)
+
+
+def _git(repo, *args):
+    import subprocess
+
+    subprocess.run(["git", "-C", str(repo), *args], check=True, capture_output=True)
+
+
+def test_since_revision_excludes_tasks_already_done_at_that_revision(tmp_path):
+    repo = tmp_path / "repo"
+    (repo / ".ai").mkdir(parents=True)
+    state_path = repo / ".ai" / "state.json"
+    brain_root = tmp_path / "brain"
+
+    _git(repo, "init")
+    _git(repo, "config", "user.email", "test@example.com")
+    _git(repo, "config", "user.name", "Test")
+
+    _write_state(state_path, {"task-old": _done_task(title="Old task", source_hash="old-rev")})
+    _git(repo, "add", ".")
+    _git(repo, "commit", "-m", "task-old done")
+    import subprocess
+    baseline_sha = subprocess.run(
+        ["git", "-C", str(repo), "rev-parse", "HEAD"], capture_output=True, text=True
+    ).stdout.strip()
+
+    # A second task becomes done after the baseline commit.
+    _write_state(
+        state_path,
+        {
+            "task-old": _done_task(title="Old task", source_hash="old-rev"),
+            "task-new": _done_task(title="New task", source_hash="new-rev"),
+        },
+    )
+
+    paths = import_done_tasks(
+        mode="since-revision", since_revision=baseline_sha,
+        state_path=state_path, brain_root=brain_root, repo_root=repo,
+    )
+
+    assert len(paths) == 1
+    post = frontmatter.load(paths[0])
+    assert post["aiw_task_id"] == "task-new"
+
+
+def test_all_mode_backfills_everything_since_revision_does_not(tmp_path):
+    repo = tmp_path / "repo"
+    (repo / ".ai").mkdir(parents=True)
+    state_path = repo / ".ai" / "state.json"
+
+    _git(repo, "init")
+    _git(repo, "config", "user.email", "test@example.com")
+    _git(repo, "config", "user.name", "Test")
+    _write_state(state_path, {"task-old": _done_task(title="Old task", source_hash="old-rev")})
+    _git(repo, "add", ".")
+    _git(repo, "commit", "-m", "task-old done")
+    import subprocess
+    baseline_sha = subprocess.run(
+        ["git", "-C", str(repo), "rev-parse", "HEAD"], capture_output=True, text=True
+    ).stdout.strip()
+
+    since_paths = import_done_tasks(
+        mode="since-revision", since_revision=baseline_sha,
+        state_path=state_path, brain_root=tmp_path / "brain_since", repo_root=repo,
+    )
+    all_paths = import_done_tasks(
+        mode="all", state_path=state_path, brain_root=tmp_path / "brain_all",
+    )
+
+    assert since_paths == []
+    assert len(all_paths) == 1
+
+
 def test_import_writes_one_capture_per_done_task(tmp_path):
     state_path = tmp_path / "state.json"
     _write_state(state_path, {"task-a": _done_task(), "task-b": {"title": "not done yet", "status": "pending"}})
     brain_root = tmp_path / "brain"
 
-    paths = import_done_tasks(state_path=state_path, brain_root=brain_root)
+    paths = import_done_tasks(mode="all", state_path=state_path, brain_root=brain_root)
 
     assert len(paths) == 1
     post = frontmatter.load(paths[0])
@@ -47,8 +130,8 @@ def test_import_is_idempotent_for_the_same_revision(tmp_path):
     _write_state(state_path, {"task-a": _done_task()})
     brain_root = tmp_path / "brain"
 
-    first = import_done_tasks(state_path=state_path, brain_root=brain_root)
-    second = import_done_tasks(state_path=state_path, brain_root=brain_root)
+    first = import_done_tasks(mode="all", state_path=state_path, brain_root=brain_root)
+    second = import_done_tasks(mode="all", state_path=state_path, brain_root=brain_root)
 
     assert len(first) == 1
     assert second == []
@@ -59,10 +142,10 @@ def test_import_writes_a_new_observation_on_revision_change(tmp_path):
     _write_state(state_path, {"task-a": _done_task(source_hash="rev1")})
     brain_root = tmp_path / "brain"
 
-    import_done_tasks(state_path=state_path, brain_root=brain_root)
+    import_done_tasks(mode="all", state_path=state_path, brain_root=brain_root)
 
     _write_state(state_path, {"task-a": _done_task(source_hash="rev2", result="Now it also does X.")})
-    second = import_done_tasks(state_path=state_path, brain_root=brain_root)
+    second = import_done_tasks(mode="all", state_path=state_path, brain_root=brain_root)
 
     assert len(second) == 1
     assert frontmatter.load(second[0])["aiw_revision"] == "rev2"
@@ -73,7 +156,7 @@ def test_imported_observation_is_classified_through_decide_not_a_direct_insert(t
     _write_state(state_path, {"task-a": _done_task()})
     brain_root = tmp_path / "brain"
 
-    import_done_tasks(state_path=state_path, brain_root=brain_root)
+    import_done_tasks(mode="all", state_path=state_path, brain_root=brain_root)
 
     calls = {"n": 0}
 
@@ -102,7 +185,7 @@ def test_invalidated_imported_fact_is_excluded_from_retrieval_like_any_other(tmp
     _write_state(state_path, {"task-a": _done_task(title="Ship the widget", result="Widget shipped via aiwidgetimport.")})
     brain_root = tmp_path / "brain"
 
-    import_done_tasks(state_path=state_path, brain_root=brain_root)
+    import_done_tasks(mode="all", state_path=state_path, brain_root=brain_root)
 
     calls = {"n": 0}
 

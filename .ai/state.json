@@ -1183,7 +1183,7 @@
   "active_task": null,
   "checkpoint": {
     "task": null,
-    "next_action": "No runnable task selected -- pick next via aiw list tasks. retraction-classifier-revisit still blocked (needs real retraction-labelled corrections). Step 3 items (confidence surfacing in inject, queue-age/latency aggregation, alias support) from the entity-scope-and-aiw-import task brief are unstarted and could become new tasks if wanted.",
-    "note": "entity-scope-and-aiw-import done: entity/scope now populated at write time (deterministic lexical extraction + capture-time project context), and a read-only AIW->Recall task importer exists (src/capture/aiw_import.py, recall import-aiw), gated through the normal consolidate/decide()/flush() path. 102/102 tests pass."
+    "next_action": "No runnable task selected -- pick next via aiw list tasks. retraction-classifier-revisit still blocked (needs real retraction-labelled corrections). entity-scope-and-aiw-import revised and re-closed after owner review (backfill probe added, importer scope flag made explicit/no-default). recall import-aiw has never been run against the real .ai/state.json/brain/ -- next real use should pick --all or --since-revision <sha> deliberately.",
+    "note": "Revised entity-scope-and-aiw-import per owner review: added eval/run_entity_scope_backfill_probe.py (proves the eval score can't move, for a structural reason, via a real backfill test on a copy of brain/); made AIW importer's mode an explicit required choice (--all vs --since-revision, no default). 105/105 tests pass."
   }
 }

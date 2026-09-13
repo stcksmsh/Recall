@@ -166,23 +166,59 @@ def review_override(
 
 @app.command("import-aiw")
 def import_aiw(
+    all_tasks: bool = typer.Option(
+        False, "--all", help="Backfill every currently-done AIW task, not just new ones."
+    ),
+    since_revision: str = typer.Option(
+        None, "--since-revision",
+        help="Only import tasks not yet done as of this git revision of .ai/state.json "
+             "(e.g. the revision printed by a prior run of this command).",
+    ),
     state_path: Path = typer.Option(
         Path(".ai/state.json"), help="Path to AIW's state.json (read-only; see .ai/decisions/0006)."
     ),
 ):
-    """Import newly-completed AIW tasks as episodic captures. Each import is phrased as an
+    """Import completed AIW tasks as episodic captures. Each import is phrased as an
     AIW-recorded observation, not a present-tense fact, and still needs `recall consolidate run`
-    to classify/apply it -- this command never writes to the semantic tier directly."""
+    to classify/apply it -- this command never writes to the semantic tier directly.
+
+    Whether historical done tasks get backfilled is a choice you make every time, not a default:
+    pass exactly one of --all or --since-revision.
+    """
+    if all_tasks == bool(since_revision):
+        typer.echo(
+            "Pass exactly one of --all (backfill every currently-done task) or "
+            "--since-revision <git-sha> (only tasks newly done since that revision of "
+            ".ai/state.json).",
+            err=True,
+        )
+        raise typer.Exit(code=1)
+
     from src.capture.aiw_import import import_done_tasks
 
-    paths = import_done_tasks(state_path=state_path)
+    mode = "all" if all_tasks else "since-revision"
+    try:
+        paths = import_done_tasks(mode=mode, since_revision=since_revision, state_path=state_path)
+    except ValueError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1)
+
     if not paths:
-        typer.echo("No new completed AIW tasks to import.")
-        return
-    typer.echo(f"Imported {len(paths)} AIW observation(s):")
-    for p in paths:
-        typer.echo(f"  {p}")
-    typer.echo("Run `recall consolidate run` to classify and apply them.")
+        typer.echo("No AIW tasks in scope to import.")
+    else:
+        typer.echo(f"Imported {len(paths)} AIW observation(s):")
+        for p in paths:
+            typer.echo(f"  {p}")
+        typer.echo("Run `recall consolidate run` to classify and apply them.")
+
+    import subprocess
+
+    head = subprocess.run(
+        ["git", "rev-parse", "HEAD"], capture_output=True, text=True
+    ).stdout.strip()
+    if head:
+        typer.echo(f"Current revision: {head}  (pass --since-revision {head} next time to "
+                   f"import only what's newly done from here on).")
 
 
 @app.command()
