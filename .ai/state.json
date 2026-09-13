@@ -324,6 +324,72 @@
         ]
       }
     },
+    "entity-scope-and-aiw-import": {
+      "title": "Entity/scope extraction at write time + read-only AIW task importer",
+      "plan": "recall-v1",
+      "status": "done",
+      "dependencies": [],
+      "scope": [
+        "src/capture/",
+        "src/consolidate/",
+        "src/index/flush.py",
+        "src/cli.py",
+        "tests/",
+        "eval/"
+      ],
+      "acceptance": [
+        "by_entity_or_scope separates two facts with the same entity name captured from different projects, by scope",
+        "eval/run_retrieval_quality_set.py re-run and result reported against the 0.03333 baseline",
+        "a read-only AIW-task importer writes episodic captures for completed AIW tasks (source=aiw, task id + revision in frontmatter), phrased as an AIW-recorded observation not a present-tense fact",
+        "an imported AIW observation is classified via the normal consolidate run and passes through executor.decide() -- no direct/ungated insert into the semantic tier",
+        "an imported fact is excluded from retrieval once invalidated, same as any other fact"
+      ],
+      "constraints": [
+        "Do not modify executor.decide(), src/retrieve/hybrid.py, src/retrieve/entity_scope.py, src/retrieve/graph_expand.py, embeddings approach, or index rebuild/durability behavior",
+        "Entity/scope extraction must be deterministic where possible; genuinely ambiguous cases route to review, never guessed",
+        "AIW import stays read-only w.r.t. .ai/ (decision 0006); all writes go through the normal capture()/consolidate path"
+      ],
+      "verify": [
+        {
+          "argv": [
+            "/secondary/Programming/Github/Recall/.venv/bin/pytest",
+            "-q"
+          ],
+          "timeout_seconds": 300
+        }
+      ],
+      "worker": "claude-bg-345b9ca0",
+      "blocker": null,
+      "result": "Entity/scope write-path: src/consolidate/entity_extract.py (deterministic lexical extraction, ties routed to review) + src/capture/capture.py project detection, wired through run.py/review.py into flush(). Verified via real cross-project collision test (by_entity_or_scope now separates same entity name across two projects). run_retrieval_quality_set.py score unchanged (0.03333->0.03333) by design -- documented why in eval/ENTITY_SCOPE_EXTRACTION.md (that harness bypasses the fixed code paths entirely). AIW importer: src/capture/aiw_import.py reads .ai/state.json read-only, imports done tasks not yet captured (by task_id+revision) as source=aiw episodic captures phrased as recorded-observations, goes through the normal capture->consolidate->classify->decide()->flush() gate (verified by counting real decide() calls), excluded from retrieval once invalidated like any other fact. recall import-aiw CLI command added. executor.decide(), hybrid.py, entity_scope.py, graph_expand.py, embeddings approach, index/build.py schema untouched per constraints. Step 3 (confidence surfacing, aggregation, aliases) not started -- time-boxed out, secondary per task brief. 102/102 tests pass.",
+      "evidence": {
+        "source_hash": "b5c09b80d369c9c60751e3c8638c73bf65d0aa4a442a63aa86d15a772f131413",
+        "contract_hash": "25aecf90871fa443c57e08ac48743bf30f6412c7b8ab4e16d227cc8fbfb7b502",
+        "success": true,
+        "runs": [
+          {
+            "schema_version": 1,
+            "id": "run-LPIuDJ",
+            "argv": [
+              "/secondary/Programming/Github/Recall/.venv/bin/pytest",
+              "-q"
+            ],
+            "exit_code": 0,
+            "success": true,
+            "timed_out": false,
+            "duration_ms": 6334,
+            "stdout": ".ai/runtime/runs/run-LPIuDJ/stdout.log",
+            "stderr": ".ai/runtime/runs/run-LPIuDJ/stderr.log",
+            "diagnostics": [],
+            "tail": [
+              "........................................................................ [ 70%]",
+              "..............................                                           [100%]",
+              "102 passed in 5.57s"
+            ],
+            "omitted": 0
+          }
+        ]
+      }
+    },
     "fix-bm25-invalid-at-leak": {
       "title": "Fix: BM25 retrieval path can return an invalidated fact as ground truth",
       "plan": "recall-v1",
@@ -1117,7 +1183,7 @@
   "active_task": null,
   "checkpoint": {
     "task": null,
-    "next_action": "Pick next ready task via aiw list tasks. retraction-classifier-revisit still blocked in spirit.",
-    "note": "Ad-hoc (not AIW-tracked): centralized BRAIN_ROOT into src/config.py (was hardcoded in 11 files), added CLAUDE.md pointer to decisions/0009's brain/-is-private boundary since a near-miss happened earlier this session. 90 tests green, both repos clean and pushed (Recall=30a9a4f, recall-brain=9773cf0)."
+    "next_action": "No runnable task selected -- pick next via aiw list tasks. retraction-classifier-revisit still blocked (needs real retraction-labelled corrections). Step 3 items (confidence surfacing in inject, queue-age/latency aggregation, alias support) from the entity-scope-and-aiw-import task brief are unstarted and could become new tasks if wanted.",
+    "note": "entity-scope-and-aiw-import done: entity/scope now populated at write time (deterministic lexical extraction + capture-time project context), and a read-only AIW->Recall task importer exists (src/capture/aiw_import.py, recall import-aiw), gated through the normal consolidate/decide()/flush() path. 102/102 tests pass."
   }
 }

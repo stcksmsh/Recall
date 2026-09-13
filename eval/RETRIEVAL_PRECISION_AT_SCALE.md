@@ -111,7 +111,14 @@ help, and the fixture's stopword list didn't generalize to this query's vocabula
    is a real, confirmed structural gap. But the reported query contains no capitalized/named entity
    at all ("bank", "wire", "transfer" are generic nouns) — even a working entity/scope anchor would
    not have engaged for *this specific query*. Implementing entity extraction was therefore **not**
-   the fix for this case, and was not built here — see Known limitation below.
+   the fix for this case, and was not built here — see Known limitation below. **Update
+   (task `entity-scope-and-aiw-import`):** the write-side gap is now closed going forward —
+   `src/consolidate/entity_extract.py` populates a real `entity` from lexical identifier patterns
+   in the capture and `src/capture/capture.py` records the deterministic project/repo context as
+   `scope` at capture time. This is prospective only (episodic captures are append-only; the 97
+   facts referenced above keep whatever entity/scope they were written with) and still would not
+   have engaged for *this specific query* (no identifier-like token in "bank wire transfer") — the
+   diagnosis above stays accurate for this case.
 2. **BM25/TF-IDF scoring quality, refined: RRF discards raw magnitude.** Raw signals already
    discriminate correctly on the real data — BM25 raw score **-15.3** (top) vs **-5.3** (#2), cosine
    similarity **0.23** vs **0.11**, both a genuine 2-3x gap. But `_bm25_candidates` and

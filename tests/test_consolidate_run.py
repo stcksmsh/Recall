@@ -1,5 +1,7 @@
 from src.capture.capture import capture
 from src.consolidate.classifier import ClassificationResult
+from src.index.build import build
+from src.retrieve.entity_scope import by_entity_or_scope
 import src.consolidate.run as run_module
 
 
@@ -92,6 +94,54 @@ def test_verify_decisions_false_skips_the_check(tmp_path, monkeypatch):
 
     assert summary.verifier_flagged == 0
     assert summary.by_action.get("supersede") == 1
+
+
+def test_cross_project_same_entity_name_separated_by_scope(tmp_path, monkeypatch):
+    """Regression for the audit finding: entity/scope were never populated, so two facts about
+    a same-named thing in different projects returned pooled/undifferentiated on lookup. Same
+    entity name ("the_database"), two different projects -- must come back separated by scope,
+    not pooled."""
+    brain_root = tmp_path / "brain"
+    capture("the_database now uses SQLite for local dev.", brain_root=brain_root, project="project_a")
+    capture("the_database now uses PostgreSQL in production.", brain_root=brain_root, project="project_b")
+
+    def fake_classify(new_capture, existing_facts, **kwargs):
+        return ClassificationResult("new", 0.95, "no overlap", None)
+
+    monkeypatch.setattr(run_module, "classify", fake_classify)
+
+    summary = run_module.run(brain_root=brain_root)
+    assert summary.processed == 2
+    assert summary.by_action == {"write_new": 2}
+
+    index_db = build(brain_root=brain_root)
+    a_matches = by_entity_or_scope(index_db, entity="the_database", scope="project_a")
+    b_matches = by_entity_or_scope(index_db, entity="the_database", scope="project_b")
+
+    assert len(a_matches) == 1
+    assert len(b_matches) == 1
+    assert a_matches[0].id != b_matches[0].id
+    assert "SQLite" in a_matches[0].body
+    assert "PostgreSQL" in b_matches[0].body
+
+
+def test_ambiguous_entity_extraction_reroutes_to_review(tmp_path, monkeypatch):
+    brain_root = tmp_path / "brain"
+    capture(
+        "Compared the_database against other_service and picked neither yet.",
+        brain_root=brain_root, project="project_a",
+    )
+
+    def fake_classify(new_capture, existing_facts, **kwargs):
+        return ClassificationResult("new", 0.95, "no overlap", None)
+
+    monkeypatch.setattr(run_module, "classify", fake_classify)
+
+    summary = run_module.run(brain_root=brain_root)
+
+    assert summary.by_action == {"review": 1}
+    facts = list((brain_root / "semantic" / "facts").rglob("*.md"))
+    assert facts == []
 
 
 def test_run_routes_low_confidence_to_review_queue(tmp_path, monkeypatch):

@@ -14,8 +14,9 @@ import frontmatter
 
 from src.consolidate.classifier import VALID_CLASSIFICATIONS
 from src.consolidate.corrections import record_correction
+from src.consolidate.entity_extract import extract_entity
 from src.consolidate.executor import Decision, resolved_action_for
-from src.index.flush import flush
+from src.index.flush import UNSORTED_ENTITY, flush
 
 from src.config import BRAIN_ROOT
 
@@ -31,6 +32,7 @@ class ReviewItem:
     conflicting_fact_id: str | None
     candidate_facts: list[dict]
     path: Path
+    project: str | None = None
 
 
 def _review_queue_dir(brain_root: Path) -> Path:
@@ -50,6 +52,7 @@ def _load_review_item(path: Path) -> ReviewItem:
         conflicting_fact_id=justification.get("conflicting_fact_id"),
         candidate_facts=post.get("candidate_facts", []),
         path=path,
+        project=post.get("project"),
     )
 
 
@@ -100,11 +103,18 @@ def _resolve(
             "review_item_id": item.id,
         }
         decision = Decision(action, item.capture_id, item.conflicting_fact_id, justification)
+        # A human is already resolving this item, so an ambiguous extraction here just falls
+        # back to "unsorted" rather than looping back into review a second time -- unlike
+        # src/consolidate/run.py's auto-apply path, there's no further gate to defer to.
+        extraction = extract_entity(item.content)
+        entity = UNSORTED_ENTITY if extraction.ambiguous else extraction.entity
         fact_path = flush(
             decision,
             capture_content=item.content,
             captured_at=item.captured_at,
             brain_root=brain_root,
+            entity=entity,
+            scope=item.project,
             candidate_facts=item.candidate_facts,
         )
 

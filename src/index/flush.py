@@ -81,11 +81,18 @@ def _write_review_item(
     captured_at: str,
     justification: dict,
     candidate_facts: list[dict],
+    project: str | None = None,
 ) -> Path:
     """Persist everything a later human accept/override needs to be self-contained: the
     candidate facts the classifier actually saw, not just the one conflicting_fact_id. This is
     what makes the correction record in ARCHITECTURE.md §7 (facts_in, classification_given,
-    confidence_given, correct_classification) possible without re-deriving retrieval state."""
+    confidence_given, correct_classification) possible without re-deriving retrieval state.
+
+    `project` carries forward the capture-time deterministic scope signal (src/capture/capture.py)
+    so that if this item is later accepted/overridden into a real fact
+    (src/consolidate/review.py), that fact still gets a real `scope` instead of losing it because
+    it passed through the review queue.
+    """
     directory = brain_root / "semantic" / "review_queue"
     directory.mkdir(parents=True, exist_ok=True)
     review_id = str(uuid.uuid4())
@@ -99,6 +106,7 @@ def _write_review_item(
     post["candidate_facts"] = candidate_facts
     post["correct_classification"] = None
     post["resolved_at"] = None
+    post["project"] = project
 
     path = directory / f"{review_id}.md"
     path.write_bytes(frontmatter.dumps(post).encode("utf-8"))
@@ -114,6 +122,7 @@ def flush(
     entity: str = UNSORTED_ENTITY,
     scope: str | None = None,
     candidate_facts: list[dict] | None = None,
+    project: str | None = None,
 ) -> Path:
     """Apply one executor Decision, writing the resulting Markdown file(s). Returns the path of
     the primary file written (the new fact, or the review-queue item)."""
@@ -167,6 +176,7 @@ def flush(
             captured_at=captured_at,
             justification=decision.justification,
             candidate_facts=candidate_facts or [],
+            project=project,
         )
 
     raise ValueError(f"Unhandled action: {decision.action!r}")

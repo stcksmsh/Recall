@@ -50,6 +50,9 @@ def capture(
     text: str = typer.Argument(None, help="Text to capture. Omit to read from stdin."),
     file: Path = typer.Option(None, "--file", help="Read capture text from a file instead."),
     source: str = typer.Option("cli", help="Provenance tag for this capture."),
+    project: str = typer.Option(
+        None, help="Override the auto-detected project/repo (default: current git repo name)."
+    ),
 ):
     """Write a new episodic capture. Instant — no model calls, no network calls."""
     if file is not None:
@@ -63,7 +66,7 @@ def capture(
         typer.echo("Nothing to capture (empty input).", err=True)
         raise typer.Exit(code=1)
 
-    path = do_capture(content, source=source)
+    path = do_capture(content, source=source, project=project)
     typer.echo(f"Captured -> {path}")
 
 
@@ -159,6 +162,27 @@ def review_override(
     """Supply the correct classification and apply its action instead of the classifier's."""
     path = do_review_override(review_id, classification, reviewer_note=note)
     typer.echo(f"Overridden -> {path}" if path else "Overridden (no fact written — see justification).")
+
+
+@app.command("import-aiw")
+def import_aiw(
+    state_path: Path = typer.Option(
+        Path(".ai/state.json"), help="Path to AIW's state.json (read-only; see .ai/decisions/0006)."
+    ),
+):
+    """Import newly-completed AIW tasks as episodic captures. Each import is phrased as an
+    AIW-recorded observation, not a present-tense fact, and still needs `recall consolidate run`
+    to classify/apply it -- this command never writes to the semantic tier directly."""
+    from src.capture.aiw_import import import_done_tasks
+
+    paths = import_done_tasks(state_path=state_path)
+    if not paths:
+        typer.echo("No new completed AIW tasks to import.")
+        return
+    typer.echo(f"Imported {len(paths)} AIW observation(s):")
+    for p in paths:
+        typer.echo(f"  {p}")
+    typer.echo("Run `recall consolidate run` to classify and apply them.")
 
 
 @app.command()
