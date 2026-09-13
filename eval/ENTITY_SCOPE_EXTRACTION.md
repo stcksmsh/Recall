@@ -107,6 +107,18 @@ this score. A full historical backfill was deliberately not applied to the live 
 AIW-import side; the same "don't silently backfill" posture applies here too, and no backfill
 tooling for existing *facts* (as opposed to AIW tasks) has been built or run.
 
+## Retraction: eval/run_retrieval_quality_set.py's 0.03333 is not a validation signal for this fix
+
+Retracted per owner review. That score never measured the real store, before this task or at all
+-- it is a synthetic single-case fixture built inside the script itself, and always was. It should
+not have been cited as evidence either way (including in the original audit that named it as a
+baseline). See `eval/run_entity_scope_real_query_probe.py` for the real per-query comparison that
+replaces it: 5-10 real queries against the real corpus (via scratch copies, live store untouched),
+`entity_scope.by_entity_or_scope()` and `hybrid.search()` results before vs. after backfilling
+`entity` onto the existing 121 facts, judged by hand, reported raw per query -- not one number.
+Findings, including two real limitations the fix does not solve, are in the task conversation
+record rather than duplicated here.
+
 ## Caveats
 
 - Entity extraction only engages on captures containing an identifier-like token (backtick,
