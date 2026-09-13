@@ -119,6 +119,21 @@ replaces it: 5-10 real queries against the real corpus (via scratch copies, live
 Findings, including two real limitations the fix does not solve, are in the task conversation
 record rather than duplicated here.
 
+## Fix: casing-variant entities now fold together
+
+Owner-identified gap from the real-query probe (cases 6/7): "session_start" (snake_case, from
+`session_start.py`) and "SessionStart" (CamelCase, a hook name) were the same real-world name but
+resolved to two different entity strings ("session_start" vs "sessionstart"), so each was only
+findable under its own spelling. `entity_extract.py::_fold` now strips `_`/`-` (not `.`) before
+both the frequency comparison AND the returned `entity` value itself -- the value has to be a pure
+function of the folded name, not of which spelling appeared in a given capture, or two
+independently-extracted captures using different spellings would still resolve to two different
+strings. Confirmed: both source captures now independently extract to `entity='sessionstart'`, and
+`by_entity_or_scope(entity="sessionstart")` on a backfilled copy returns both facts together.
+Side effect: previously-underscored entity values are now written without separators (e.g. the
+cross-project test's `"the_database"` example now extracts as `"thedatabase"`) -- less readable,
+but deterministic and collision-safe across spellings, which is what was asked for.
+
 ## Caveats
 
 - Entity extraction only engages on captures containing an identifier-like token (backtick,

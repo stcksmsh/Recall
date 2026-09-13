@@ -115,8 +115,8 @@ def test_cross_project_same_entity_name_separated_by_scope(tmp_path, monkeypatch
     assert summary.by_action == {"write_new": 2}
 
     index_db = build(brain_root=brain_root)
-    a_matches = by_entity_or_scope(index_db, entity="the_database", scope="project_a")
-    b_matches = by_entity_or_scope(index_db, entity="the_database", scope="project_b")
+    a_matches = by_entity_or_scope(index_db, entity="thedatabase", scope="project_a")
+    b_matches = by_entity_or_scope(index_db, entity="thedatabase", scope="project_b")
 
     assert len(a_matches) == 1
     assert len(b_matches) == 1

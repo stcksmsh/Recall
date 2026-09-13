@@ -46,18 +46,34 @@ def _normalize(token: str) -> str:
     return token.strip().strip("`'\"").lower()
 
 
+def _fold(normalized: str) -> str:
+    """Collapse identifier-formatting differences that are the same name written two ways --
+    "session_start" (snake_case) and "SessionStart" (CamelCase, normalized to "sessionstart" by
+    `_normalize`) must compare and resolve as one entity, not split into two buckets just because
+    one capture used underscores and another used capitals. Strips `_`/`-` only; a literal `.`
+    (e.g. "hybrid.py") is not a casing artifact and is left alone.
+
+    This is the comparison/grouping key AND the returned `entity` value -- the entity value has
+    to be a pure function of the folded name alone (not of which spelling happened to appear in
+    a given capture), or two independently-extracted captures using different spellings would
+    resolve to two different entity strings despite this fold, defeating the point.
+    """
+    return re.sub(r"[_-]", "", normalized)
+
+
 def extract_entity(content: str) -> EntityExtraction:
     """Find identifier-like tokens in `content` and pick the one this fact is most likely about.
 
     0 candidates: nothing identifiable in the text -- `entity` stays "unsorted", unchanged from
     today's behavior. There's no signal to extract, not an ambiguity to resolve.
 
-    1 distinct candidate, or one candidate strictly more frequent than the others: unambiguous --
-    repetition is a deterministic (counted, not guessed) signal of which name the fact is
-    actually about versus one mentioned only in passing.
+    1 distinct (post-fold) candidate, or one candidate strictly more frequent than the others:
+    unambiguous -- repetition is a deterministic (counted, not guessed) signal of which name the
+    fact is actually about versus one mentioned only in passing. Frequency is counted on the
+    folded form so "session_start" and "SessionStart" mentions add to the same count.
 
-    A genuine tie among 2+ distinct candidates at the same frequency: no deterministic basis to
-    prefer one, so this is flagged ambiguous rather than picked arbitrarily.
+    A genuine tie among 2+ distinct folded candidates at the same frequency: no deterministic
+    basis to prefer one, so this is flagged ambiguous rather than picked arbitrarily.
     """
     found = [
         _normalize(tok)
@@ -68,11 +84,11 @@ def extract_entity(content: str) -> EntityExtraction:
     if not found:
         return EntityExtraction(entity=UNSORTED_ENTITY, ambiguous=False, candidates=[])
 
-    counts = Counter(found)
-    top_count = max(counts.values())
-    leaders = sorted(tok for tok, n in counts.items() if n == top_count)
+    fold_counts = Counter(_fold(tok) for tok in found)
+    top_count = max(fold_counts.values())
+    leaders = sorted(key for key, n in fold_counts.items() if n == top_count)
 
     if len(leaders) == 1:
-        return EntityExtraction(entity=leaders[0], ambiguous=False, candidates=sorted(counts))
+        return EntityExtraction(entity=leaders[0], ambiguous=False, candidates=sorted(fold_counts))
 
     return EntityExtraction(entity=UNSORTED_ENTITY, ambiguous=True, candidates=leaders)
